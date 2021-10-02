@@ -1,10 +1,12 @@
 const numberOfShelves = 3
 const shelfHeight = 48
 const sizeMultiplier = 4
-const topHeight = 12
+const topHeight = 13
 const bottomHeight = 20
 const waterDrainRate = 1000 * 4
+const waterDrainAmount = 0.2
 const speedRate = 1000
+const maxWaterLevel = 4
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -15,12 +17,17 @@ const sprites = {};
 const shelves = []
 let points = 10
 let bottomSprite
-let waterLevel = 4
+let waterLevel = maxWaterLevel
+let waterLevelSprite
+
+let waterLevelText = document.getElementById('water-level')
 
 // load main textures
 loader.add('bg', 'assets/bg.png')
 loader.add('bg-top', 'assets/bg-top.png')
 loader.add('bg-bottom', 'assets/bg-bottom.png')
+loader.add('text-frame', 'assets/text-frame.png')
+loader.add('water-level', 'assets/water-level.png')
 loader.add('pot', 'assets/pot.png')
 
 // load buttons
@@ -50,6 +57,7 @@ plants.forEach(plant => {
 
 loader.load(() => {
   const topSprite = new PIXI.Sprite(loader.resources['bg-top'].texture)
+  topSprite.y = 1
   app.stage.addChild(topSprite)
 
   bottomSprite = new PIXI.Sprite(loader.resources['bg-bottom'].texture)
@@ -59,6 +67,15 @@ loader.load(() => {
   addShelf()
   addShelf()
   addShelf()
+
+  textFrame = new PIXI.Sprite(loader.resources['text-frame'].texture)
+  app.stage.addChild(textFrame)
+
+  waterLevelSprite = new PIXI.TilingSprite(loader.resources['water-level'].texture)
+  waterLevelSprite.y = 6
+  waterLevelSprite.x = 62
+  waterLevelSprite.height = 8
+  app.stage.addChild(waterLevelSprite)
 
   // Add buttons
   const addPlantButton = new PIXI.Sprite(loader.resources['button_add-plant'].texture)
@@ -75,6 +92,7 @@ loader.load(() => {
   waterButtonSprite.on('pointerdown', (event) => {
     water()
   });
+  updateTexts()
 })
 
 const getRandomPlant = () => {
@@ -114,6 +132,7 @@ const deletePot = (shelf, pot) => {
     pot.sprite.x = 8 + i * (pot.sprite.width + 5)
     pot.plant.sprite.x = pot.sprite.x
   })
+  updateTexts()
 }
 
 const getGrowthTime = (plantTemplate) => {
@@ -123,7 +142,8 @@ const getGrowthTime = (plantTemplate) => {
 }
 
 const water = () => {
-  waterLevel = 4
+  waterLevel = maxWaterLevel
+  updateTexts()
 }
 
 const addPlant = () => {
@@ -152,15 +172,23 @@ const addPlant = () => {
   pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0}
   app.stage.addChild(plantSprite)
   shelf.pots.push(pot)
+  updateTexts()
 }
 
 const waterLoop = () => {
-  waterLevel -= 1
-  if (waterLevel < 0) waterLevel = 0
+  if (!getTotalNumberOfPlants()) return
+  if (waterLevel <= 0) return
+  waterLevel -= waterDrainAmount
+  updateTexts()
+}
+
+const getTotalNumberOfPlants = () => {
+  let total = 0
+  shelves.forEach(shelf => total += shelf.pots.length)
+  return total
 }
 
 const loop = () => {
-  console.log(waterLevel);
   shelves.forEach(shelf => {
     shelf.pots.forEach(pot => {
       const template = plants.find(plant => plant.key === pot.plant.key)
@@ -168,6 +196,16 @@ const loop = () => {
       growPlant(pot)
     })
   })
+}
+
+addTexts = () => {
+}
+
+updateTexts = () => {
+  waterLevelText.innerText = "$" + points.toString()
+
+  const percent = 1 / maxWaterLevel * waterLevel
+  waterLevelSprite.width = 33 * percent
 }
 
 setInterval(loop, speedRate)

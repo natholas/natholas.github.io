@@ -1,6 +1,11 @@
 body {
   margin: 0;
   background-color: #395248;
+  font-family: pixelFont;
+}
+
+body * {
+  user-select: none;
 }
 
 canvas {
@@ -11,4 +16,25 @@ canvas {
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+@font-face {
+  font-family: 'pixelFont';
+  src: url('/assets/font.woff2') format('woff2'),
+      url('/assets/font.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.texts {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 240px;
+}
+
+#water-level {
+  font-size: 28px;
 }
