@@ -11,11 +11,13 @@ body * {
 canvas {
   margin: 0 auto;
   display: block;
+  margin-top: 20px;
   width: 512px;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  background-color: #395248;
 }
 
 @font-face {
@@ -29,12 +31,12 @@ canvas {
 
 .texts {
   position: absolute;
-  top: 20px;
+  top: 42px;
   left: 50%;
   transform: translateX(-50%);
-  width: 240px;
+  width: 250px;
 }
 
 #water-level {
-  font-size: 28px;
+  font-size: 26px;
 }

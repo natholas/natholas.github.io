@@ -40,13 +40,17 @@ const plants = [
     key: 'cactus-1',
     growthTime: 35,
     growthRateVariation: 1.5,
-    numberOfStages: 6
+    numberOfStages: 6,
+    value: 3,
+    cost: 2
   },
   {
     key: 'flower-1',
     growthTime: 15,
     growthRateVariation: 2,
-    numberOfStages: 6
+    numberOfStages: 6,
+    value: 1.5,
+    cost: 1
   }
 ]
 plants.forEach(plant => {
@@ -123,7 +127,7 @@ const addShelf = () => {
 const deletePot = (shelf, pot) => {
   const template = plants.find(plant => plant.key === pot.plant.key)
   if (pot.plant.stage === template.numberOfStages) {
-    points += 2
+    points += pot.plant.value
   }
   app.stage.removeChild(pot.plant.sprite)
   app.stage.removeChild(pot.sprite)
@@ -147,8 +151,9 @@ const water = () => {
 }
 
 const addPlant = () => {
-  if (!points) return
-  points -= 1
+  const plantTemplate = getRandomPlant()
+  if (points < plantTemplate.cost) return
+  points -=  plantTemplate.cost
   let index = shelves.findIndex(s => s.pots.length < 4)
   if (index === -1) {
     addShelf()
@@ -162,14 +167,14 @@ const addPlant = () => {
 
   const pot = {sprite: potSprite}
 
-  const plantTemplate = getRandomPlant()
+  
   const plantSprite = new PIXI.Sprite(loader.resources[plantTemplate.key + '_stage-1'].texture)
   plantSprite.interactive = true
-  plantSprite.on('click', () => deletePot(shelf, pot))
+  plantSprite.on('pointerdown', () => deletePot(shelf, pot))
   plantSprite.x = pot.sprite.x
   plantSprite.y = pot.sprite.y
   const growthTime = getGrowthTime(plantTemplate)
-  pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0}
+  pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
   app.stage.addChild(plantSprite)
   shelf.pots.push(pot)
   updateTexts()
