@@ -3,6 +3,8 @@ const shelfHeight = 48
 const sizeMultiplier = 4
 const topHeight = 12
 const bottomHeight = 20
+const waterDrainRate = 1000 * 4
+const speedRate = 1000
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -11,7 +13,9 @@ document.body.appendChild(app.view);
 const loader = PIXI.Loader.shared;
 const sprites = {};
 const shelves = []
-let points = 1
+let points = 10
+let bottomSprite
+let waterLevel = 4
 
 // load main textures
 loader.add('bg', 'assets/bg.png')
@@ -21,6 +25,7 @@ loader.add('pot', 'assets/pot.png')
 
 // load buttons
 loader.add('button_add-plant', 'assets/buttons/add-plant.png')
+loader.add('button_water', 'assets/buttons/water.png')
 
 // load all plant stages
 const plants = [
@@ -43,8 +48,6 @@ plants.forEach(plant => {
   }
 })
 
-let bottomSprite
-
 loader.load(() => {
   const topSprite = new PIXI.Sprite(loader.resources['bg-top'].texture)
   app.stage.addChild(topSprite)
@@ -58,11 +61,19 @@ loader.load(() => {
   addShelf()
 
   // Add buttons
-  const buttonSprite = new PIXI.Sprite(loader.resources['button_add-plant'].texture)
-  app.stage.addChild(buttonSprite)
-  buttonSprite.interactive = true
-  buttonSprite.on('pointerdown', (event) => {
+  const addPlantButton = new PIXI.Sprite(loader.resources['button_add-plant'].texture)
+  app.stage.addChild(addPlantButton)
+  addPlantButton.interactive = true
+  addPlantButton.on('pointerdown', (event) => {
     addPlant()
+  });
+
+  const waterButtonSprite = new PIXI.Sprite(loader.resources['button_water'].texture)
+  app.stage.addChild(waterButtonSprite)
+  waterButtonSprite.interactive = true
+  waterButtonSprite.x = 128 - waterButtonSprite.width
+  waterButtonSprite.on('pointerdown', (event) => {
+    water()
   });
 })
 
@@ -72,9 +83,8 @@ const getRandomPlant = () => {
 }
 
 const growPlant = (pot) => {
-  pot.plant.growthAmount += 1
-  console.log(pot.plant.growthAmount, pot.plant.growthTime);
-  if (pot.plant.growthAmount === pot.plant.growthTime) {
+  pot.plant.growthAmount += waterLevel
+  if (pot.plant.growthAmount >= pot.plant.growthTime) {
     pot.plant.growthAmount = 0
     pot.plant.stage += 1
     pot.plant.sprite.texture = loader.resources[pot.plant.key + '_stage-' + pot.plant.stage].texture
@@ -112,6 +122,10 @@ const getGrowthTime = (plantTemplate) => {
   return Math.round(base + variation)
 }
 
+const water = () => {
+  waterLevel = 4
+}
+
 const addPlant = () => {
   if (!points) return
   points -= 1
@@ -140,7 +154,13 @@ const addPlant = () => {
   shelf.pots.push(pot)
 }
 
+const waterLoop = () => {
+  waterLevel -= 1
+  if (waterLevel < 0) waterLevel = 0
+}
+
 const loop = () => {
+  console.log(waterLevel);
   shelves.forEach(shelf => {
     shelf.pots.forEach(pot => {
       const template = plants.find(plant => plant.key === pot.plant.key)
@@ -150,4 +170,6 @@ const loop = () => {
   })
 }
 
-setInterval(loop, 250)
+setInterval(loop, speedRate)
+
+setInterval(waterLoop, waterDrainRate)
