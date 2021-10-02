@@ -11,7 +11,7 @@ body * {
 canvas {
   margin: 0 auto;
   display: block;
-  margin-top: 20px;
+  margin-top: 8px;
   width: 512px;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
@@ -31,7 +31,7 @@ canvas {
 
 .texts {
   position: absolute;
-  top: 42px;
+  top: 31px;
   left: 50%;
   transform: translateX(-50%);
   width: 250px;
@@ -43,7 +43,7 @@ canvas {
 
 #select-plant-meta {
   position: absolute;
-  top: 160px;
+  top: 140px;
   width: 100%;
   text-align: center;
   font-size: 26px;
