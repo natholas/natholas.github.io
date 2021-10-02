@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  background-color: #395248;
+}
+
+canvas {
+  margin: 0 auto;
+  display: block;
+  width: 512px;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
