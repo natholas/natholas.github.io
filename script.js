@@ -11,6 +11,7 @@ document.body.appendChild(app.view);
 const loader = PIXI.Loader.shared;
 const sprites = {};
 const shelves = []
+let points = 1
 
 // load main textures
 loader.add('bg', 'assets/bg.png')
@@ -25,12 +26,14 @@ loader.add('button_add-plant', 'assets/buttons/add-plant.png')
 const plants = [
   {
     key: 'cactus-1',
-    growthRate: 0.1,
+    growthTime: 35,
+    growthRateVariation: 1.5,
     numberOfStages: 6
   },
   {
     key: 'flower-1',
-    growthRate: 0.4,
+    growthTime: 15,
+    growthRateVariation: 2,
     numberOfStages: 6
   }
 ]
@@ -69,8 +72,13 @@ const getRandomPlant = () => {
 }
 
 const growPlant = (pot) => {
-  pot.plant.stage += 1
-  pot.plant.sprite.texture = loader.resources[pot.plant.key + '_stage-' + pot.plant.stage].texture
+  pot.plant.growthAmount += 1
+  console.log(pot.plant.growthAmount, pot.plant.growthTime);
+  if (pot.plant.growthAmount === pot.plant.growthTime) {
+    pot.plant.growthAmount = 0
+    pot.plant.stage += 1
+    pot.plant.sprite.texture = loader.resources[pot.plant.key + '_stage-' + pot.plant.stage].texture
+  }
 }
 
 const addShelf = () => {
@@ -84,7 +92,29 @@ const addShelf = () => {
   app.renderer.resize(128, app.view.height);
 }
 
+const deletePot = (shelf, pot) => {
+  const template = plants.find(plant => plant.key === pot.plant.key)
+  if (pot.plant.stage === template.numberOfStages) {
+    points += 2
+  }
+  app.stage.removeChild(pot.plant.sprite)
+  app.stage.removeChild(pot.sprite)
+  shelf.pots.splice(shelf.pots.indexOf(pot), 1)
+  shelf.pots.forEach((pot, i) => {
+    pot.sprite.x = 8 + i * (pot.sprite.width + 5)
+    pot.plant.sprite.x = pot.sprite.x
+  })
+}
+
+const getGrowthTime = (plantTemplate) => {
+  const base = plantTemplate.growthTime
+  const variation = (Math.random() * plantTemplate.growthRateVariation) - (plantTemplate.growthRateVariation/2)
+  return Math.round(base + variation)
+}
+
 const addPlant = () => {
+  if (!points) return
+  points -= 1
   let index = shelves.findIndex(s => s.pots.length < 4)
   if (index === -1) {
     addShelf()
@@ -100,9 +130,12 @@ const addPlant = () => {
 
   const plantTemplate = getRandomPlant()
   const plantSprite = new PIXI.Sprite(loader.resources[plantTemplate.key + '_stage-1'].texture)
+  plantSprite.interactive = true
+  plantSprite.on('click', () => deletePot(shelf, pot))
   plantSprite.x = pot.sprite.x
   plantSprite.y = pot.sprite.y
-  pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite}
+  const growthTime = getGrowthTime(plantTemplate)
+  pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0}
   app.stage.addChild(plantSprite)
   shelf.pots.push(pot)
 }
@@ -112,9 +145,9 @@ const loop = () => {
     shelf.pots.forEach(pot => {
       const template = plants.find(plant => plant.key === pot.plant.key)
       if (pot.plant.stage === template.numberOfStages) return
-      if (Math.random() < template.growthRate) growPlant(pot)
+      growPlant(pot)
     })
   })
 }
 
-setInterval(loop, 1000 * 1)
+setInterval(loop, 250)
