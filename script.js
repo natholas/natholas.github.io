@@ -15,12 +15,13 @@ document.body.appendChild(app.view);
 const loader = PIXI.Loader.shared;
 const sprites = {};
 const shelves = []
-let points = 10
+let points = 20
 let bottomSprite
 let waterLevel = maxWaterLevel
 let waterLevelSprite
 
 let waterLevelText = document.getElementById('water-level')
+let selectPlantMenuMeta = document.getElementById('select-plant-meta')
 
 // load main textures
 loader.add('bg', 'assets/bg.png')
@@ -30,28 +31,42 @@ loader.add('text-frame', 'assets/text-frame.png')
 loader.add('water-level', 'assets/water-level.png')
 loader.add('pot', 'assets/pot.png')
 
+loader.add('plant-select-menu-bg', 'assets/plant-select-menu-bg.png')
+loader.add('arrow-left', 'assets/buttons/arrow-left.png')
+loader.add('arrow-right', 'assets/buttons/arrow-right.png')
+
 // load buttons
 loader.add('button_add-plant', 'assets/buttons/add-plant.png')
 loader.add('button_water', 'assets/buttons/water.png')
+loader.add('button_confirm', 'assets/buttons/confirm.png')
+loader.add('button_close', 'assets/buttons/close.png')
+
+let addPlantMenuSprites = []
+let addPlantSelectedPlantIndex = 0
+
+let leftArrow, rightArrow, addPlantMenuConfirmButton
 
 // load all plant stages
 const plants = [
-  {
-    key: 'cactus-1',
-    growthTime: 35,
-    growthRateVariation: 1.5,
-    numberOfStages: 6,
-    value: 3,
-    cost: 2
-  },
+  
   {
     key: 'flower-1',
     growthTime: 15,
     growthRateVariation: 2,
     numberOfStages: 6,
-    value: 1.5,
-    cost: 1
-  }
+    value: 2,
+    cost: 1,
+    spaces: 1
+  },
+  {
+    key: 'cactus-1',
+    growthTime: 35,
+    growthRateVariation: 1.5,
+    numberOfStages: 6,
+    value: 4,
+    cost: 2,
+    spaces: 1
+  },
 ]
 plants.forEach(plant => {
   for (let i = 1; i <= 6; i++) {
@@ -68,9 +83,7 @@ loader.load(() => {
   bottomSprite.y = topHeight
   app.stage.addChild(bottomSprite)
 
-  addShelf()
-  addShelf()
-  addShelf()
+  for (let i = 0; i < 3; i++) addShelf()
 
   textFrame = new PIXI.Sprite(loader.resources['text-frame'].texture)
   app.stage.addChild(textFrame)
@@ -86,7 +99,7 @@ loader.load(() => {
   app.stage.addChild(addPlantButton)
   addPlantButton.interactive = true
   addPlantButton.on('pointerdown', (event) => {
-    addPlant()
+    showSelectPlantMenu()
   });
 
   const waterButtonSprite = new PIXI.Sprite(loader.resources['button_water'].texture)
@@ -119,9 +132,11 @@ const addShelf = () => {
   bgSprite.y = topHeight + shelfHeight * index
   app.stage.addChild(bgSprite)
   bottomSprite.y = bgSprite.y + bgSprite.height
-  shelves.push({sprite: bgSprite, pots: []})
+  const shelf = {sprite: bgSprite, pots: []}
+  shelves.push(shelf)
   app.view.height += shelfHeight
   app.renderer.resize(128, app.view.height);
+  return shelf
 }
 
 const deletePot = (shelf, pot) => {
@@ -133,7 +148,10 @@ const deletePot = (shelf, pot) => {
   app.stage.removeChild(pot.sprite)
   shelf.pots.splice(shelf.pots.indexOf(pot), 1)
   shelf.pots.forEach((pot, i) => {
-    pot.sprite.x = 8 + i * (pot.sprite.width + 5)
+    let offset = 5
+    let previous = shelf.pots[i - 1]
+    if (previous) offset = previous.sprite.x + previous.sprite.width * previous.spaces
+    pot.sprite.x = offset + 4
     pot.plant.sprite.x = pot.sprite.x
   })
   updateTexts()
@@ -150,24 +168,25 @@ const water = () => {
   updateTexts()
 }
 
-const addPlant = () => {
-  const plantTemplate = getRandomPlant()
+const getNextEmptyShelf = () => {
+  const shelf = shelves.find(shelf => shelf.pots.reduce((t, pot) => t + pot.spaces, 0) < 4)
+  return shelf || addShelf()
+}
+
+const addPlant = (plantTemplate) => {
   if (points < plantTemplate.cost) return
   points -=  plantTemplate.cost
-  let index = shelves.findIndex(s => s.pots.length < 4)
-  if (index === -1) {
-    addShelf()
-    index = shelves.length - 1
-  }
+  let index = shelves.indexOf(getNextEmptyShelf())
   const shelf = shelves[index]
   const potSprite = new PIXI.Sprite(loader.resources.pot.texture)
   potSprite.y = topHeight + shelfHeight * index + shelfHeight - potSprite.height - 2
-  potSprite.x = 8 + shelf.pots.length * (potSprite.width + 5)
+  let offset = 5
+  let previous = shelf.pots[shelf.pots.length - 1]
+  if (previous) offset = previous.sprite.x + previous.sprite.width * previous.spaces
+  potSprite.x = offset + 4
   app.stage.addChild(potSprite)
 
-  const pot = {sprite: potSprite}
-
-  
+  const pot = {sprite: potSprite, spaces: plantTemplate.spaces}
   const plantSprite = new PIXI.Sprite(loader.resources[plantTemplate.key + '_stage-1'].texture)
   plantSprite.interactive = true
   plantSprite.on('pointerdown', () => deletePot(shelf, pot))
@@ -203,12 +222,109 @@ const loop = () => {
   })
 }
 
-addTexts = () => {
+const showSelectPlantMenu = () => {
+  const menuBg = new PIXI.Sprite(loader.resources['plant-select-menu-bg'].texture)
+  menuBg.y = 20
+  app.stage.addChild(menuBg)
+  addPlantMenuSprites.push(menuBg)
+
+  const closeButton = new PIXI.Sprite(loader.resources['button_close'].texture)
+  app.stage.addChild(closeButton)
+  closeButton.y = 25
+  closeButton.x = menuBg.width - closeButton.width - 5
+  closeButton.interactive = true
+  closeButton.on('pointerdown', () => {
+    closeSelectPlantMenu()
+  })
+  addPlantMenuSprites.push(closeButton)
+
+  addPlantMenuConfirmButton = new PIXI.Sprite(loader.resources['button_confirm'].texture)
+  app.stage.addChild(addPlantMenuConfirmButton)
+  addPlantMenuConfirmButton.y = 120
+  addPlantMenuConfirmButton.x = 35
+  addPlantMenuConfirmButton.interactive = true
+  addPlantMenuConfirmButton.on('pointerdown', () => {
+    if (points < plants[addPlantSelectedPlantIndex].cost) return
+    addPlant(plants[addPlantSelectedPlantIndex])
+    closeSelectPlantMenu()
+  })
+  addPlantMenuSprites.push(addPlantMenuConfirmButton)
+
+  const plant = plants[addPlantSelectedPlantIndex]
+  const preview = new PIXI.Sprite(loader.resources[plant.key + '_stage-' + plant.numberOfStages].texture)
+  app.stage.addChild(preview)
+  preview.x = menuBg.width / 2 - (preview.width / 2)
+  preview.y = 20 + menuBg.height / 2 - (preview.height / 2)
+  addPlantMenuSprites.push(preview)
+
+  const pot = new PIXI.Sprite(loader.resources['pot'].texture)
+  app.stage.addChild(pot)
+  pot.x = preview.x
+  pot.y = preview.y
+  addPlantMenuSprites.push(pot)
+
+  leftArrow = new PIXI.Sprite(loader.resources['arrow-left'].texture)
+  app.stage.addChild(leftArrow)
+  leftArrow.y = 74
+  leftArrow.x = 4
+  leftArrow.interactive = true
+  leftArrow.on('pointerdown', () => {
+    if (addPlantSelectedPlantIndex === 0) return
+    addPlantSelectedPlantIndex -= 1
+    handleAddPlantMenuButtonAlphas()
+    const plant = plants[addPlantSelectedPlantIndex]
+    preview.texture = loader.resources[plant.key + '_stage-' + plant.numberOfStages].texture
+    setAddPlantMenuMeta()
+  })
+  addPlantMenuSprites.push(leftArrow)
+
+  rightArrow = new PIXI.Sprite(loader.resources['arrow-right'].texture)
+  app.stage.addChild(rightArrow)
+  rightArrow.y = 74
+  rightArrow.x = 111
+  rightArrow.interactive = true
+  rightArrow.on('pointerdown', () => {
+    if (addPlantSelectedPlantIndex === plants.length - 1) return
+    addPlantSelectedPlantIndex += 1
+    handleAddPlantMenuButtonAlphas()
+    const plant = plants[addPlantSelectedPlantIndex]
+    preview.texture = loader.resources[plant.key + '_stage-' + plant.numberOfStages].texture
+    setAddPlantMenuMeta()
+  })
+  addPlantMenuSprites.push(rightArrow)
+
+  selectPlantMenuMeta.classList.add('shown')
+  setAddPlantMenuMeta()
+  handleAddPlantMenuButtonAlphas()
+}
+
+const setAddPlantMenuMeta = () => {
+  const plant = plants[addPlantSelectedPlantIndex]
+  selectPlantMenuMeta.innerHTML = `
+  Cost: $${getAmountText(plant.cost)}<br>
+  Value: $${getAmountText(plant.value)}<br>
+  Time: ${getAmountText(plant.growthTime * plant.numberOfStages)}
+  `
+}
+
+const handleAddPlantMenuButtonAlphas = () => {
+  rightArrow.alpha = 1
+  leftArrow.alpha = 1
+  addPlantMenuConfirmButton.alpha = 1
+  if (addPlantSelectedPlantIndex === 0) leftArrow.alpha = 0.5
+  if (addPlantSelectedPlantIndex === plants.length - 1) rightArrow.alpha = 0.5
+  if (points < plants[addPlantSelectedPlantIndex].cost) addPlantMenuConfirmButton.alpha = 0.5
+}
+
+const closeSelectPlantMenu = () => {
+  selectPlantMenuMeta.classList.remove('shown')
+  addPlantMenuSprites.forEach(sprite => {
+    app.stage.removeChild(sprite)
+  })
 }
 
 updateTexts = () => {
-  waterLevelText.innerText = "$" + points.toString()
-
+  waterLevelText.innerText = "$" + getAmountText(points)
   const percent = 1 / maxWaterLevel * waterLevel
   waterLevelSprite.width = 33 * percent
 }
@@ -216,3 +332,17 @@ updateTexts = () => {
 setInterval(loop, speedRate)
 
 setInterval(waterLoop, waterDrainRate)
+
+const getAmountText = (value) => {
+  const units = ['', 'K', 'M', 'B', 'T']
+  let unitIndex = 0
+  while (value >= 1000) {
+    unitIndex += 1
+    value /= 1000
+  }
+
+  let val = value.toFixed(1)
+  if (val.endsWith('.0')) val = val.substring(0, val.length - 2)
+
+  return val + units[unitIndex]
+}

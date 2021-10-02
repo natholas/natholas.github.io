@@ -40,3 +40,17 @@ canvas {
 #water-level {
   font-size: 26px;
 }
+
+#select-plant-meta {
+  position: absolute;
+  top: 160px;
+  width: 100%;
+  text-align: center;
+  font-size: 26px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#select-plant-meta.shown {
+ opacity: 1; 
+}
