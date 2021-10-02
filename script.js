@@ -1,9 +1,22 @@
-const numberOfShelves = 2
+const numberOfShelves = 3
 const shelfHeight = 48
 
 let app = new PIXI.Application({ width: 128, height: 48 * numberOfShelves });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 document.body.appendChild(app.view);
+
+app.stage.interactive = true;// This can't be forgotten 
+app.stage.on("pointerdown", (event) => {
+  alert("pointerdown")
+})
+
+app.stage.on("touchstart", (event) => {
+  alert("touchstart")
+})
+
+app.stage.on("click", (event) => {
+  alert("click")
+})
 
 const loader = PIXI.Loader.shared;
 const sprites = {};
