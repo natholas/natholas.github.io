@@ -5,33 +5,21 @@ let app = new PIXI.Application({ width: 128, height: 48 * numberOfShelves });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 document.body.appendChild(app.view);
 
-app.stage.interactive = true;// This can't be forgotten 
-app.stage.on("pointerdown", (event) => {
-  alert("pointerdown")
-})
-
-app.stage.on("touchstart", (event) => {
-  alert("touchstart")
-})
-
-app.stage.on("click", (event) => {
-  alert("click")
-})
-
 const loader = PIXI.Loader.shared;
 const sprites = {};
 const shelves = []
 
 // Chainable `add` to enqueue a resource
-loader.add('bg', 'assets/bg.png')
+loader.add('bg', 'assets/bg2.png')
 loader.add('pot', 'assets/pot.png')
 
-loader.add('cactus-1_stage-1', 'assets/cactus-1/stage-1.png')
-loader.add('cactus-1_stage-2', 'assets/cactus-1/stage-2.png')
-loader.add('cactus-1_stage-3', 'assets/cactus-1/stage-3.png')
-loader.add('cactus-1_stage-4', 'assets/cactus-1/stage-4.png')
-loader.add('cactus-1_stage-5', 'assets/cactus-1/stage-5.png')
-loader.add('cactus-1_stage-6', 'assets/cactus-1/stage-6.png')
+const plants = ['cactus-1', 'flower-1']
+
+plants.forEach(plant => {
+  for (let i = 1; i <= 6; i++) {
+    loader.add(plant + '_stage-' + i, 'assets/'+ plant +'/stage-' + i +'.png')
+  }
+})
 
 
 loader.load((loader, resources) => {
@@ -62,7 +50,7 @@ const onShelfClick = (index) => {
 const onPotClick = (shelfIndex, potIndex) => {
   const pot = shelves[shelfIndex].pots[potIndex]
   if (!pot.plant) {
-    const name = 'cactus-1'
+    const name = 'flower-1'
     const plantSprite = new PIXI.Sprite(loader.resources[name + '_stage-1'].texture)
     plantSprite.x = pot.sprite.x
     plantSprite.y = pot.sprite.y
