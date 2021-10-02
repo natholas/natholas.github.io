@@ -1,4 +1,4 @@
-const numberOfShelves = 4
+const numberOfShelves = 2
 const shelfHeight = 48
 
 let app = new PIXI.Application({ width: 128, height: 48 * numberOfShelves });
