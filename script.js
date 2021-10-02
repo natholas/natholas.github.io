@@ -42,7 +42,7 @@ const onShelfClick = (index) => {
   potSprite.x = 8 + shelf.pots.length * (potSprite.width + 5)
   app.stage.addChild(potSprite)
   let potIndex = shelf.pots.length
-  potSprite.on('click', (event) => onPotClick(index, potIndex));
+  potSprite.on('pointerdown', (event) => onPotClick(index, potIndex));
   shelf.pots.push({sprite: potSprite, plant: undefined})
 }
 
