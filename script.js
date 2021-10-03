@@ -23,6 +23,7 @@ let bottomSprite
 let waterLevel
 let waterLevelSprite
 let killed = false
+let plantMenuOpen = false
 
 let lastUpdateTime = Date.now()
 let lastWateredTime = Date.now()
@@ -161,6 +162,7 @@ const addShelf = () => {
 }
 
 const deletePot = (shelf, pot) => {
+  if (plantMenuOpen) return
   const template = plants.find(plant => plant.key === pot.plant.key)
   if (pot.plant.stage !== template.numberOfStages) {
     sounds.buttonDisabled.play()
@@ -266,6 +268,8 @@ const apply = () => {
 }
 
 const showSelectPlantMenu = () => {
+  if (plantMenuOpen) return sounds.buttonDisabled.play()
+  plantMenuOpen = true
   sounds.button.play()
   addPlantMenuBg = new PIXI.Sprite(loader.resources['plant-select-menu-bg'].texture)
   addPlantMenuBg.y = 26
@@ -360,6 +364,7 @@ const handleAddPlantMenuButtonAlphas = () => {
 }
 
 const closeSelectPlantMenu = () => {
+  plantMenuOpen = false
   selectPlantMenuMeta.classList.remove('shown')
   addPlantMenuSprites.forEach(sprite => {
     app.stage.removeChild(sprite)
