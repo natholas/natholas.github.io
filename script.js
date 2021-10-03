@@ -9,7 +9,7 @@ const waterDrainAmount = 0.2
 const checkRate = 500
 const maxWaterLevel = 4
 const minShelves = 3
-const waterDrainTime = 1000 * 60 * 5
+const waterDrainTime = 1000 * 60 * 15
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -57,7 +57,7 @@ const plants = [
   {
     key: 'flower-1',
     growthTime: 15,
-    growthRateVariation: 2,
+    growthRateVariation: 1.5,
     numberOfStages: 6,
     value: 2,
     cost: 1,
@@ -73,21 +73,12 @@ const plants = [
     spaces: 1
   },
   {
-    key: 'fume-1',
-    growthTime: 35,
+    key: 'big-1',
+    growthTime: 60 * 2,
     growthRateVariation: 1.5,
-    numberOfStages: 1,
-    value: 4,
-    cost: 2,
-    spaces: 1
-  },
-  {
-    key: 'fume-2',
-    growthTime: 35,
-    growthRateVariation: 1.5,
-    numberOfStages: 1,
-    value: 4,
-    cost: 2,
+    numberOfStages: 6,
+    value: 30,
+    cost: 16,
     spaces: 2
   },
 ]
