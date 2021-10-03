@@ -31,6 +31,15 @@ let lastWaterCheckTime = Date.now()
 let waterLevelText = document.getElementById('water-level')
 let selectPlantMenuMeta = document.getElementById('select-plant-meta')
 
+const sounds = {
+  money: PIXI.sound.Sound.from({url: '/assets/sounds/money.mp3', autoPlay: false}),
+  plant: PIXI.sound.Sound.from({url: '/assets/sounds/plant.mp3', autoPlay: false}),
+  button: PIXI.sound.Sound.from({url: '/assets/sounds/button.mp3', autoPlay: false}),
+  buttonDisabled: PIXI.sound.Sound.from({url: '/assets/sounds/button-disabled.mp3', autoPlay: false}),
+  water: PIXI.sound.Sound.from({url: '/assets/sounds/water.mp3', autoPlay: false}),
+  turn: PIXI.sound.Sound.from({url: '/assets/sounds/turn.mp3', autoPlay: false}),
+}
+
 // load main textures
 loader.add('bg', 'assets/bg.png')
 loader.add('bg-top', 'assets/bg-top.png')
@@ -153,10 +162,15 @@ const addShelf = () => {
 
 const deletePot = (shelf, pot) => {
   const template = plants.find(plant => plant.key === pot.plant.key)
-  if (pot.plant.stage !== template.numberOfStages) return
+  if (pot.plant.stage !== template.numberOfStages) {
+    sounds.buttonDisabled.play()
+    return
+  }
+  sounds.button.play()
 
   if (pot.plant.stage === template.numberOfStages) {
     points += pot.plant.value
+    sounds.money.play()
   } else {
     points += template.cost
   }
@@ -186,7 +200,9 @@ const removeEmptyShelves = () => {
 }
 
 const water = () => {
+  sounds.button.play()
   lastWateredTime = Date.now()
+  sounds.water.play()
   apply()
 }
 
@@ -250,12 +266,16 @@ const apply = () => {
 }
 
 const showSelectPlantMenu = () => {
+  sounds.button.play()
   addPlantMenuBg = new PIXI.Sprite(loader.resources['plant-select-menu-bg'].texture)
   addPlantMenuBg.y = 26
   app.stage.addChild(addPlantMenuBg)
   addPlantMenuSprites.push(addPlantMenuBg)
 
-  const closeButton = createSprite('button_close', closeSelectPlantMenu)
+  const closeButton = createSprite('button_close', () => {
+    sounds.button.play()
+    closeSelectPlantMenu()
+  })
   closeButton.y = 31
   closeButton.x = addPlantMenuBg.width - closeButton.width - 5
   addPlantMenuSprites.push(closeButton)
@@ -265,6 +285,7 @@ const showSelectPlantMenu = () => {
     addPlant(plants[addPlantSelectedPlantIndex])
     points -= plants[addPlantSelectedPlantIndex].cost
     apply()
+    sounds.plant.play()
     closeSelectPlantMenu()
   })
   addPlantMenuConfirmButton.y = 126
@@ -279,7 +300,11 @@ const showSelectPlantMenu = () => {
   addPlantMenuSprites.push(addPlantMenuPot)
 
   leftArrow = createSprite('arrow-left', () => {
-    if (addPlantSelectedPlantIndex === 0) return
+    if (addPlantSelectedPlantIndex === 0) {
+      sounds.buttonDisabled.play()
+      return
+    }
+    sounds.turn.play()
     addPlantSelectedPlantIndex -= 1
     handleAddPlantMenuButtonAlphas()
     const plant = plants[addPlantSelectedPlantIndex]
@@ -291,7 +316,11 @@ const showSelectPlantMenu = () => {
   addPlantMenuSprites.push(leftArrow)
 
   rightArrow = createSprite('arrow-right', () => {
-    if (addPlantSelectedPlantIndex === plants.length - 1) return
+    if (addPlantSelectedPlantIndex === plants.length - 1) {
+      sounds.buttonDisabled.play()
+      return
+    }
+    sounds.turn.play()
     addPlantSelectedPlantIndex += 1
     handleAddPlantMenuButtonAlphas()
     const plant = plants[addPlantSelectedPlantIndex]
