@@ -13,6 +13,7 @@ canvas {
   display: block;
   margin-top: 8px;
   width: 512px;
+  max-width: calc(100% - 10px);
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
@@ -52,12 +53,27 @@ canvas {
 }
 
 #select-plant-meta.shown {
- opacity: 1; 
+  opacity: 1; 
 }
 
 #reset-button {
   position: absolute;
-  top:0;
+  bottom: 0;
   left: 0;
   opacity: 0.1;
+}
+
+@media (max-width: 522px) {
+  .texts {
+    top: 6.5vw;
+    width: calc(50% - 10px);
+  }
+  #water-level {
+    font-size: 5vw;
+  }
+
+  #select-plant-meta {
+    top: 30vw;
+    font-size: 5vw;
+  }
 }
