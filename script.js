@@ -300,7 +300,7 @@ const setAddPlantMenuMeta = () => {
   selectPlantMenuMeta.innerHTML = `
   Cost: $${getAmountText(plant.cost)}<br>
   Value: $${getAmountText(plant.value)}<br>
-  Time: ${getAmountText(plant.growthTime * plant.numberOfStages)}
+  Time: ${getTimeAmount(plant.growthTime)}
   `
   addPlantMenuPreview.x = addPlantMenuBg.width / 2 - (addPlantMenuPreview.width / 2)
   addPlantMenuPreview.y = 20 + addPlantMenuBg.height / 2 - (addPlantMenuPreview.height / 2)
@@ -342,6 +342,24 @@ const getAmountText = (value) => {
   if (val.endsWith('.0')) val = val.substring(0, val.length - 2)
 
   return val + units[unitIndex]
+}
+
+const getTimeAmount = (value) => {
+  value /= 1000
+  let suffix = 'S'
+  if (value >= 60) {
+    suffix = 'M'
+    value /= 60
+    if (value >= 60) {
+      suffix = 'H'
+      value /= 60
+      if (value >= 24) {
+        suffix = 'D'
+        value /= 24
+      }
+    }
+  }
+  return Math.round(value) + suffix
 }
 
 const save = () => {
