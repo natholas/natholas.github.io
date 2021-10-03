@@ -467,6 +467,7 @@ const save = () => {
     lastUpdateTime,
     lastWateredTime,
     addPlantSelectedPlantIndex,
+    addPlantSelectedPotIndex,
     points,
     shelves: shelves.map(shelf => {
       return shelf.pots.map(pot => {
@@ -491,6 +492,7 @@ const load = (data) => {
     lastUpdateTime = data.lastUpdateTime
     lastWateredTime = data.lastWateredTime
     addPlantSelectedPlantIndex = data.addPlantSelectedPlantIndex
+    addPlantSelectedPotIndex = data.addPlantSelectedPotIndex || 0
     points = data.points
     data.shelves.forEach(shelfData => {
       shelfData.forEach(plantData => {
