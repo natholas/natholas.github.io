@@ -3,10 +3,11 @@ const shelfHeight = 48
 const sizeMultiplier = 4
 const topHeight = 28
 const bottomHeight = 20
-const waterDrainRate = 1000 * 4 * 10
 const waterDrainAmount = 0.2
-const speedRate = 1000 * 2
+const checkRate = 500
 const maxWaterLevel = 4
+const minShelves = 3
+const waterDrainTime = 1000 * 60
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -19,6 +20,9 @@ let points = 20
 let bottomSprite
 let waterLevel = maxWaterLevel
 let waterLevelSprite
+
+let lastUpdateTime = Date.now()
+let lastWateredTime = Date.now()
 
 let waterLevelText = document.getElementById('water-level')
 let selectPlantMenuMeta = document.getElementById('select-plant-meta')
@@ -48,7 +52,6 @@ let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantM
 
 // load all plant stages
 const plants = [
-  
   {
     key: 'flower-1',
     growthTime: 15,
@@ -99,7 +102,7 @@ loader.load(() => {
   bottomSprite = createSprite('bg-bottom')
   bottomSprite.y = topHeight
 
-  for (let i = 0; i < 3; i++) addShelf()
+  for (let i = 0; i < minShelves; i++) addShelf()
 
   textFrame = createSprite('text-frame')
 
@@ -113,6 +116,8 @@ loader.load(() => {
 
   const waterButtonSprite = createSprite('button_water', water)
   waterButtonSprite.x = 128 - waterButtonSprite.width
+
+  applyWater()
   updateTexts()
 })
 
@@ -131,22 +136,24 @@ const getRandomPlant = () => {
   return plants[index]
 }
 
-const growPlant = (pot) => {
-  pot.plant.growthAmount += waterLevel
-  if (pot.plant.growthAmount >= pot.plant.growthTime) {
-    pot.plant.growthAmount = 0
-    pot.plant.stage += 1
-    pot.plant.sprite.texture = loader.resources[pot.plant.key + '_stage-' + pot.plant.stage].texture
+// timePassed: amount of time the plant has been growing for since last check
+const setPlantStage = (plant, timePassed) => {
+  plant.growthAmount += timePassed / 1000
+  while (plant.growthAmount >= plant.growthTime) {
+    const template = plants.find(_plant => _plant.key === plant.key)
+    if (plant.stage === template.numberOfStages) break
+    plant.growthAmount -= plant.growthTime
+    plant.stage += 1
+    plant.sprite.texture = loader.resources[plant.key + '_stage-' + plant.stage].texture
   }
 }
 
 const addShelf = () => {
   const index = shelves.length
-  const bgSprite = new PIXI.Sprite(loader.resources.bg.texture)
-  bgSprite.y = topHeight + shelfHeight * index
-  app.stage.addChild(bgSprite)
-  bottomSprite.y = bgSprite.y + bgSprite.height
-  const shelf = {sprite: bgSprite, pots: []}
+  const shelfSprite = createSprite('bg')
+  shelfSprite.y = topHeight + shelfHeight * index
+  bottomSprite.y = shelfSprite.y + shelfSprite.height
+  const shelf = {sprite: shelfSprite, pots: []}
   shelves.push(shelf)
   app.view.height += shelfHeight
   app.renderer.resize(128, app.view.height);
@@ -166,20 +173,33 @@ const deletePot = (shelf, pot) => {
     let previous = shelf.pots[i - 1]
     if (previous) offset = previous.sprite.x + previous.sprite.width * previous.spaces
     pot.sprite.x = offset + 4
-    pot.plant.sprite.x = pot.sprite.x
   })
+
+  removeEmptyShelves()
   updateTexts()
 }
 
-const getGrowthTime = (plantTemplate) => {
+const removeEmptyShelves = () => {
+  const toDelete = shelves.filter(shelf => shelf.pots.length === 0)
+  toDelete.forEach(shelf => {
+    app.stage.removeChild(shelf.sprite)
+    shelves.splice(shelves.indexOf(shelf), 1)
+    app.view.height -= shelfHeight
+    app.renderer.resize(128, app.view.height);
+  })
+  while (shelves.length < minShelves) addShelf()
+  shelves.forEach((shelf, i) => shelf.sprite.y =  topHeight + shelfHeight * i)
+}
+
+const getRandomGrowthTime = (plantTemplate) => {
   const base = plantTemplate.growthTime
   const variation = (Math.random() * plantTemplate.growthRateVariation) - (plantTemplate.growthRateVariation/2)
   return Math.round(base + variation)
 }
 
 const water = () => {
-  waterLevel = maxWaterLevel
-  updateTexts()
+  lastWateredTime = Date.now()
+  applyWater()
 }
 
 const getNextEmptyShelf = () => {
@@ -194,7 +214,8 @@ const addPlant = (plantTemplate) => {
   const shelf = shelves[index]
   const potSprite = new PIXI.Sprite(loader.resources.pot.texture)
   app.stage.addChild(potSprite)
-  potSprite.y = topHeight + shelfHeight * index + shelfHeight - potSprite.height - 2
+  potSprite.parent = shelf.sprite
+  potSprite.y = shelfHeight - potSprite.height - 2
 
   const spacesTaken = shelf.pots.reduce((t, pot) => t + pot.spaces, 0)
   const x = 9 + spacesTaken * 28
@@ -203,19 +224,20 @@ const addPlant = (plantTemplate) => {
   const plantSprite = createSprite(plantTemplate.key + '_stage-1', () => deletePot(shelf, pot))
 
   potSprite.x = x + plantSprite.width / 2 - potSprite.width /2
-
-  plantSprite.x = x
-  plantSprite.y = pot.sprite.y + pot.sprite.height - plantSprite.height
-  const growthTime = getGrowthTime(plantTemplate)
+  plantSprite.y = pot.sprite.height - plantSprite.height
+  plantSprite.x = potSprite.width /2 - plantSprite.width / 2
+  plantSprite.parent = potSprite
+  const growthTime = getRandomGrowthTime(plantTemplate)
   pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
   shelf.pots.push(pot)
   updateTexts()
 }
 
-const waterLoop = () => {
-  if (!getTotalNumberOfPlants()) return
-  if (waterLevel <= 0) return
-  waterLevel -= waterDrainAmount
+const applyWater = () => {
+  if (!getTotalNumberOfPlants()) lastWateredTime = Date.now()
+  let timeSinceLastWatered = Date.now() - lastWateredTime
+  waterLevel = 100 - (100 / waterDrainTime * timeSinceLastWatered)
+  if (waterLevel < 0) waterLevel = 0
   updateTexts()
 }
 
@@ -226,12 +248,22 @@ const getTotalNumberOfPlants = () => {
 }
 
 const loop = () => {
+  apply()
+  applyWater()
+}
+
+const apply = () => {
+  let timePassed = Date.now() - lastUpdateTime
+  let timeSinceLastWatered = Date.now() - lastWateredTime
+
+  let wateredTime = waterDrainTime - timeSinceLastWatered
+  if (wateredTime < 0) wateredTime = 0
+
+  if (timePassed > wateredTime) timePassed = wateredTime
+  lastUpdateTime = Date.now()
+
   shelves.forEach(shelf => {
-    shelf.pots.forEach(pot => {
-      const template = plants.find(plant => plant.key === pot.plant.key)
-      if (pot.plant.stage === template.numberOfStages) return
-      growPlant(pot)
-    })
+    shelf.pots.forEach(pot => setPlantStage(pot.plant, timePassed))
   })
 }
 
@@ -322,7 +354,7 @@ const closeSelectPlantMenu = () => {
 
 updateTexts = () => {
   waterLevelText.innerText = "$" + getAmountText(points)
-  const percent = 1 / maxWaterLevel * waterLevel
+  const percent = waterLevel / 100
   waterLevelSprite.width = 33 * percent
 }
 
@@ -340,5 +372,4 @@ const getAmountText = (value) => {
   return val + units[unitIndex]
 }
 
-setInterval(loop, speedRate)
-setInterval(waterLoop, waterDrainRate)
+setInterval(loop, checkRate)
