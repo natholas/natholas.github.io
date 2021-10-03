@@ -8,6 +8,7 @@ const bottomHeight = 20
 const checkRate = 1000
 const minShelves = 3
 const waterDrainTime = 1000 * 60 * 15
+const numberOfPots = 3
 
 let timeScale = 1
 
@@ -47,7 +48,10 @@ loader.add('bg-top', 'assets/bg-top.png')
 loader.add('bg-bottom', 'assets/bg-bottom.png')
 loader.add('text-frame', 'assets/text-frame.png')
 loader.add('water-level', 'assets/water-level.png')
-loader.add('pot', 'assets/pot.png')
+
+for (let i = 1; i <= numberOfPots; i++) {
+  loader.add('pot-' + i, 'assets/pot-' + i + '.png')
+}
 
 loader.add('plant-select-menu-bg', 'assets/plant-select-menu-bg.png')
 loader.add('arrow-left', 'assets/buttons/arrow-left.png')
@@ -61,6 +65,8 @@ loader.add('button_close', 'assets/buttons/close.png')
 
 let addPlantMenuSprites = []
 let addPlantSelectedPlantIndex = 0
+let addPlantSelectedPotIndex = 0
+
 
 let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantMenuPreview, addPlantMenuBg
 
@@ -213,18 +219,17 @@ const getNextEmptyShelf = (spaces) => {
   return shelf || addShelf()
 }
 
-const addPlant = (plantTemplate) => {
+const addPlant = (plantTemplate, potIndex = 0) => {
   let index = shelves.indexOf(getNextEmptyShelf(plantTemplate.spaces))
   const shelf = shelves[index]
-  const potSprite = new PIXI.Sprite(loader.resources.pot.texture)
-  app.stage.addChild(potSprite)
+  const potSprite = createSprite('pot-' + (potIndex + 1))
   potSprite.parent = shelf.sprite
   potSprite.y = shelfHeight - potSprite.height - 2
 
   const spacesTaken = shelf.pots.reduce((t, pot) => t + pot.spaces, 0)
   const x = 9 + spacesTaken * 28
 
-  const pot = {sprite: potSprite, spaces: plantTemplate.spaces}
+  const pot = {sprite: potSprite, spaces: plantTemplate.spaces, potIndex}
   const plantSprite = createSprite(plantTemplate.key + '_stage-0', () => deletePot(shelf, pot))
 
   potSprite.x = x + plantSprite.width / 2 - potSprite.width /2
@@ -289,7 +294,7 @@ const showSelectPlantMenu = () => {
       sounds.buttonDisabled.play()
       return
     }
-    addPlant(plants[addPlantSelectedPlantIndex])
+    addPlant(plants[addPlantSelectedPlantIndex], addPlantSelectedPotIndex)
     points -= plants[addPlantSelectedPlantIndex].cost
     apply()
     sounds.plant.play()
@@ -303,7 +308,7 @@ const showSelectPlantMenu = () => {
   addPlantMenuPreview = createSprite(plant.key + '_stage-' + plant.numberOfStages)
   addPlantMenuSprites.push(addPlantMenuPreview)
 
-  addPlantMenuPot = createSprite('pot')
+  addPlantMenuPot = createSprite('pot-' + (addPlantSelectedPotIndex + 1))
   addPlantMenuSprites.push(addPlantMenuPot)
 
   leftArrow = createSprite('arrow-left', () => {
@@ -319,7 +324,7 @@ const showSelectPlantMenu = () => {
     setAddPlantMenuMeta()
   })
   leftArrow.x = 4
-  leftArrow.y = 78
+  leftArrow.y = 72
   addPlantMenuSprites.push(leftArrow)
 
   rightArrow = createSprite('arrow-right', () => {
@@ -335,8 +340,44 @@ const showSelectPlantMenu = () => {
     setAddPlantMenuMeta()
   })
   rightArrow.x = 111
-  rightArrow.y = 78
+  rightArrow.y = 72
   addPlantMenuSprites.push(rightArrow)
+
+
+  leftPotArrow = createSprite('arrow-left', () => {
+    if (addPlantSelectedPotIndex === 0) {
+      sounds.buttonDisabled.play()
+      return
+    }
+    sounds.button.play()
+    addPlantSelectedPotIndex -= 1
+    handleAddPlantMenuButtonAlphas() // todo
+
+    addPlantMenuPot.texture = loader.resources['pot-' + (addPlantSelectedPotIndex + 1)].texture
+
+    setAddPlantMenuMeta()
+  })
+  leftPotArrow.x = 4
+  leftPotArrow.y = 86
+  addPlantMenuSprites.push(leftPotArrow)
+
+  rightPotArrow = createSprite('arrow-right', () => {
+    if (addPlantSelectedPotIndex === numberOfPots - 1) {
+      sounds.buttonDisabled.play()
+      return
+    }
+    sounds.button.play()
+    addPlantSelectedPotIndex += 1
+    handleAddPlantMenuButtonAlphas() // todo
+
+    addPlantMenuPot.texture = loader.resources['pot-' + (addPlantSelectedPotIndex + 1)].texture
+
+    setAddPlantMenuMeta()
+  })
+  rightPotArrow.x = 111
+  rightPotArrow.y = 86
+  addPlantMenuSprites.push(rightPotArrow)
+
 
   selectPlantMenuMeta.classList.add('shown')
   setAddPlantMenuMeta()
@@ -360,9 +401,13 @@ const setAddPlantMenuMeta = () => {
 const handleAddPlantMenuButtonAlphas = () => {
   rightArrow.alpha = 1
   leftArrow.alpha = 1
+  rightPotArrow.alpha = 1
+  leftPotArrow.alpha = 1
   addPlantMenuConfirmButton.alpha = 1
   if (addPlantSelectedPlantIndex === 0) leftArrow.alpha = 0.5
   if (addPlantSelectedPlantIndex === plants.length - 1) rightArrow.alpha = 0.5
+  if (addPlantSelectedPotIndex === 0) leftPotArrow.alpha = 0.5
+  if (addPlantSelectedPotIndex === numberOfPots - 1) rightPotArrow.alpha = 0.5
   if (points < plants[addPlantSelectedPlantIndex].cost) addPlantMenuConfirmButton.alpha = 0.5
 }
 
@@ -377,6 +422,7 @@ const closeSelectPlantMenu = () => {
 updateTexts = () => {
   waterLevelText.innerText = "$" + getAmountText(points)
   const percent = waterLevel / 100
+  if (percent > 1) percent = 1
   waterLevelSprite.width = 33 * percent
 }
 
@@ -428,6 +474,7 @@ const save = () => {
           key: pot.plant.key,
           growthAmount: pot.plant.growthAmount,
           stage: pot.plant.stage,
+          potIndex: pot.potIndex
         }
       })
     }).filter(a => a.length)
@@ -448,7 +495,7 @@ const load = (data) => {
     data.shelves.forEach(shelfData => {
       shelfData.forEach(plantData => {
         let template = plants.find(p => p.key === plantData.key)
-        const plant = addPlant(template)
+        const plant = addPlant(template, plantData.potIndex)
         plant.growthAmount = plantData.growthAmount
         plant.stage = plantData.stage
       })
