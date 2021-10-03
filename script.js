@@ -1,15 +1,15 @@
-const version = 3
+const version = 4
 
 const numberOfShelves = 3
 const shelfHeight = 48
 const sizeMultiplier = 4
 const topHeight = 28
 const bottomHeight = 20
-const waterDrainAmount = 0.2
 const checkRate = 1000
-const maxWaterLevel = 4
 const minShelves = 3
 const waterDrainTime = 1000 * 60 * 15
+
+let timeScale = 1
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -20,12 +20,13 @@ const sprites = {};
 const shelves = []
 let points = 4
 let bottomSprite
-let waterLevel = maxWaterLevel
+let waterLevel
 let waterLevelSprite
 let killed = false
 
 let lastUpdateTime = Date.now()
 let lastWateredTime = Date.now()
+let lastWaterCheckTime = Date.now()
 
 let waterLevelText = document.getElementById('water-level')
 let selectPlantMenuMeta = document.getElementById('select-plant-meta')
@@ -58,46 +59,49 @@ const plants = [
   {
     key: 'flower-1',
     growthTime: 1000 * 60 * 1,
-    growthRateVariation: 1.5,
     numberOfStages: 6,
-    value: 1.5,
-    cost: 1,
+    value: 1,
+    cost: 0.5,
     spaces: 1,
   },
   {
     key: 'flower-2',
     growthTime: 1000 * 60 * 2,
-    growthRateVariation: 1.5,
     numberOfStages: 5,
-    value: 2.3,
-    cost: 1.5,
+    value: 2,
+    cost: 1,
     spaces: 1,
   },
   {
     key: 'cactus-1',
     growthTime: 1000 * 60 * 5,
-    growthRateVariation: 1.5,
     numberOfStages: 6,
-    value: 15,
+    value: 10,
     cost: 5,
     spaces: 1,
   },
   {
     key: 'bush-1',
     growthTime: 1000 * 60 * 15,
-    growthRateVariation: 1.5,
     numberOfStages: 8,
     value: 50,
     cost: 20,
     spaces: 1,
   },
   {
+    key: 'cactus-2',
+    growthTime: 1000 * 60 * 25,
+    numberOfStages: 7,
+    value: 120,
+    cost: 58,
+    spaces: 1,
+  },
+  {
     key: 'big-1',
     growthTime: 1000 * 60 * 45,
-    growthRateVariation: 1.5,
     numberOfStages: 6,
-    value: 40,
-    cost: 25,
+    value: 190,
+    cost: 88,
     spaces: 2,
   },
 ]
@@ -126,7 +130,7 @@ const getRandomPlant = () => {
 const setPlantStage = (plant, timePassed) => {
   const template = plants.find(_plant => _plant.key === plant.key)
   plant.growthAmount += timePassed
-  const stageGrowthTime = plant.growthTime / template.numberOfStages
+  const stageGrowthTime = template.growthTime / template.numberOfStages
   while (plant.growthAmount >= stageGrowthTime) {
     if (plant.stage === template.numberOfStages) break
     plant.growthAmount -= stageGrowthTime
@@ -149,6 +153,8 @@ const addShelf = () => {
 
 const deletePot = (shelf, pot) => {
   const template = plants.find(plant => plant.key === pot.plant.key)
+  if (pot.plant.stage !== template.numberOfStages) return
+
   if (pot.plant.stage === template.numberOfStages) {
     points += pot.plant.value
   } else {
@@ -179,12 +185,6 @@ const removeEmptyShelves = () => {
   shelves.forEach((shelf, i) => shelf.sprite.y =  topHeight + shelfHeight * i)
 }
 
-const getRandomGrowthTime = (plantTemplate) => {
-  const base = plantTemplate.growthTime
-  const variation = (Math.random() * plantTemplate.growthRateVariation) - (plantTemplate.growthRateVariation/2)
-  return Math.round(base + variation)
-}
-
 const water = () => {
   lastWateredTime = Date.now()
   apply()
@@ -213,23 +213,24 @@ const addPlant = (plantTemplate) => {
   plantSprite.y = pot.sprite.height - plantSprite.height
   plantSprite.x = potSprite.width /2 - plantSprite.width / 2
   plantSprite.parent = potSprite
-  const growthTime = getRandomGrowthTime(plantTemplate)
-  pot.plant = {stage: 0, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
+  pot.plant = {stage: 0, key: plantTemplate.key, sprite: plantSprite, growthAmount: 0, value: plantTemplate.value}
   shelf.pots.push(pot)
   return pot.plant
-}
-
-const applyWater = () => {
-  if (!getTotalNumberOfPlants()) lastWateredTime = Date.now()
-  let timeSinceLastWatered = Date.now() - lastWateredTime
-  waterLevel = 100 - (100 / waterDrainTime * timeSinceLastWatered)
-  if (waterLevel < 0) waterLevel = 0
 }
 
 const getTotalNumberOfPlants = () => {
   let total = 0
   shelves.forEach(shelf => total += shelf.pots.length)
   return total
+}
+
+const applyWater = () => {
+  let msSinceLastWatered = (Date.now() - lastWateredTime) * timeScale
+  if (!getTotalNumberOfPlants()) lastWateredTime += (Date.now() - lastWaterCheckTime)
+
+  waterLevel = Math.ceil(100 - (100 / waterDrainTime * msSinceLastWatered))
+  if (waterLevel < 0) waterLevel = 0
+  lastWaterCheckTime = Date.now()
 }
 
 const apply = () => {
@@ -243,9 +244,7 @@ const apply = () => {
   if (timePassed > wateredTime) timePassed = wateredTime
   lastUpdateTime = Date.now()
 
-  shelves.forEach(shelf => {
-    shelf.pots.forEach(pot => setPlantStage(pot.plant, timePassed))
-  })
+  shelves.forEach(shelf => shelf.pots.forEach(pot => setPlantStage(pot.plant, timePassed * timeScale)))
   updateTexts()
   save()
 }
@@ -309,12 +308,12 @@ const showSelectPlantMenu = () => {
 }
 
 const setAddPlantMenuMeta = () => {
-  const plant = plants[addPlantSelectedPlantIndex]
+  const template = plants[addPlantSelectedPlantIndex]
   selectPlantMenuMeta.innerHTML = `
   
-  $${getAmountText(plant.cost)} - 
-  ${getTimeAmount(plant.growthTime)}<br>
-  Sell: $${getAmountText(plant.value)}
+  $${getAmountText(template.cost)} - 
+  ${getTimeAmount(template.growthTime)}<br>
+  Sell: $${getAmountText(template.value)}
   `
   addPlantMenuPreview.x = addPlantMenuBg.width / 2 - (addPlantMenuPreview.width / 2)
   addPlantMenuPreview.y = 20 + addPlantMenuBg.height / 2 - (addPlantMenuPreview.height / 2)
@@ -391,7 +390,6 @@ const save = () => {
         return {
           key: pot.plant.key,
           growthAmount: pot.plant.growthAmount,
-          growthTime: pot.plant.growthTime,
           stage: pot.plant.stage,
         }
       })
@@ -415,7 +413,6 @@ const load = (data) => {
         let template = plants.find(p => p.key === plantData.key)
         const plant = addPlant(template)
         plant.growthAmount = plantData.growthAmount
-        plant.growthTime = plantData.growthTime
         plant.stage = plantData.stage
       })
     })
