@@ -151,6 +151,9 @@ const setPlantStage = (plant, timePassed) => {
     if (plant.stage === template.numberOfStages) break
     plant.growthAmount -= stageGrowthTime
     plant.stage += 1
+    if (plant.stage === template.numberOfStages) {
+      showNotification('Plant ready for harvesting', {icon: '/assets/' + plant.key + '/stage-' + template.numberOfStages + '.png'})
+    }
   }
   plant.sprite.texture = loader.resources[plant.key + '_stage-' + plant.stage].texture
 }
@@ -251,8 +254,14 @@ const applyWater = () => {
   let msSinceLastWatered = (Date.now() - lastWateredTime) * timeScale
   if (!getTotalNumberOfPlants()) lastWateredTime += (Date.now() - lastWaterCheckTime)
 
-  waterLevel = Math.ceil(100 - (100 / waterDrainTime * msSinceLastWatered))
-  if (waterLevel < 0) waterLevel = 0
+  let newWaterLevel = Math.ceil(100 - (100 / waterDrainTime * msSinceLastWatered))
+  if (newWaterLevel < 0) newWaterLevel = 0
+
+  if (newWaterLevel === 0 && waterLevel > 0) {
+    showNotification('Water is empty!', {icon: '/assets/buttons/water.png'})
+  }
+
+  waterLevel = newWaterLevel
   lastWaterCheckTime = Date.now()
 }
 
@@ -421,7 +430,7 @@ const closeSelectPlantMenu = () => {
 
 updateTexts = () => {
   waterLevelText.innerText = "$" + getAmountText(points)
-  const percent = waterLevel / 100
+  let percent = waterLevel / 100
   if (percent > 1) percent = 1
   waterLevelSprite.width = 33 * percent
 }
@@ -528,6 +537,18 @@ const init = (numberOfShelves) => {
 
   const waterButtonSprite = createSprite('button_water', water)
   waterButtonSprite.x = 128 - waterButtonSprite.width
+}
+
+const showNotification = (title, options) => {
+  Notification.requestPermission().then(result => {
+    if (document.hasFocus()) return
+    if (result !== 'granted') return
+    const notification = new Notification(title, options);
+    notification.onclick = (e) => {
+      e.preventDefault()
+      window.focus();
+    }
+   });
 }
 
 const reset = () => {
