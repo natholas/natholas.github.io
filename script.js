@@ -102,7 +102,7 @@ const plants = [
   },
 ]
 plants.forEach(plant => {
-  for (let i = 1; i <= plant.numberOfStages; i++) {
+  for (let i = 0; i <= plant.numberOfStages; i++) {
     loader.add(plant.key + '_stage-' + i, 'assets/'+ plant.key +'/stage-' + i +'.png')
   }
 })
@@ -207,14 +207,14 @@ const addPlant = (plantTemplate) => {
   const x = 9 + spacesTaken * 28
 
   const pot = {sprite: potSprite, spaces: plantTemplate.spaces}
-  const plantSprite = createSprite(plantTemplate.key + '_stage-1', () => deletePot(shelf, pot))
+  const plantSprite = createSprite(plantTemplate.key + '_stage-0', () => deletePot(shelf, pot))
 
   potSprite.x = x + plantSprite.width / 2 - potSprite.width /2
   plantSprite.y = pot.sprite.height - plantSprite.height
   plantSprite.x = potSprite.width /2 - plantSprite.width / 2
   plantSprite.parent = potSprite
   const growthTime = getRandomGrowthTime(plantTemplate)
-  pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
+  pot.plant = {stage: 0, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
   shelf.pots.push(pot)
   return pot.plant
 }
