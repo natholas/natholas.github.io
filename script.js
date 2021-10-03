@@ -1,4 +1,4 @@
-const version = 2
+const version = 3
 
 const numberOfShelves = 3
 const shelfHeight = 48
@@ -6,7 +6,7 @@ const sizeMultiplier = 4
 const topHeight = 28
 const bottomHeight = 20
 const waterDrainAmount = 0.2
-const checkRate = 500
+const checkRate = 1000
 const maxWaterLevel = 4
 const minShelves = 3
 const waterDrainTime = 1000 * 60 * 15
@@ -57,39 +57,48 @@ let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantM
 const plants = [
   {
     key: 'flower-1',
-    growthTime: 1000 * 60 * 0.5,
-    growthRateVariation: 1.5,
-    numberOfStages: 6,
-    value: 2,
-    cost: 1,
-    spaces: 1
-  },
-  {
-    key: 'cactus-1',
     growthTime: 1000 * 60 * 1,
     growthRateVariation: 1.5,
     numberOfStages: 6,
-    value: 4,
-    cost: 2,
-    spaces: 1
+    value: 1.5,
+    cost: 1,
+    spaces: 1,
+  },
+  {
+    key: 'flower-2',
+    growthTime: 1000 * 60 * 2,
+    growthRateVariation: 1.5,
+    numberOfStages: 5,
+    value: 2.3,
+    cost: 1.5,
+    spaces: 1,
+  },
+  {
+    key: 'cactus-1',
+    growthTime: 1000 * 60 * 5,
+    growthRateVariation: 1.5,
+    numberOfStages: 6,
+    value: 15,
+    cost: 5,
+    spaces: 1,
   },
   {
     key: 'bush-1',
-    growthTime: 1000 * 60 * 5,
+    growthTime: 1000 * 60 * 15,
     growthRateVariation: 1.5,
     numberOfStages: 8,
-    value: 30,
-    cost: 16,
-    spaces: 1
+    value: 50,
+    cost: 20,
+    spaces: 1,
   },
   {
     key: 'big-1',
-    growthTime: 1000 * 60 * 10,
+    growthTime: 1000 * 60 * 45,
     growthRateVariation: 1.5,
     numberOfStages: 6,
     value: 40,
     cost: 25,
-    spaces: 2
+    spaces: 2,
   },
 ]
 plants.forEach(plant => {
@@ -142,6 +151,8 @@ const deletePot = (shelf, pot) => {
   const template = plants.find(plant => plant.key === pot.plant.key)
   if (pot.plant.stage === template.numberOfStages) {
     points += pot.plant.value
+  } else {
+    points += template.cost
   }
   app.stage.removeChild(pot.plant.sprite)
   app.stage.removeChild(pot.sprite)
@@ -153,7 +164,7 @@ const deletePot = (shelf, pot) => {
   })
 
   removeEmptyShelves()
-  updateTexts()
+  apply()
 }
 
 const removeEmptyShelves = () => {
@@ -176,7 +187,7 @@ const getRandomGrowthTime = (plantTemplate) => {
 
 const water = () => {
   lastWateredTime = Date.now()
-  applyWater()
+  apply()
 }
 
 const getNextEmptyShelf = (spaces) => {
@@ -205,7 +216,6 @@ const addPlant = (plantTemplate) => {
   const growthTime = getRandomGrowthTime(plantTemplate)
   pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
   shelf.pots.push(pot)
-  updateTexts()
   return pot.plant
 }
 
@@ -214,7 +224,6 @@ const applyWater = () => {
   let timeSinceLastWatered = Date.now() - lastWateredTime
   waterLevel = 100 - (100 / waterDrainTime * timeSinceLastWatered)
   if (waterLevel < 0) waterLevel = 0
-  updateTexts()
 }
 
 const getTotalNumberOfPlants = () => {
@@ -224,6 +233,7 @@ const getTotalNumberOfPlants = () => {
 }
 
 const apply = () => {
+  applyWater()
   let timePassed = Date.now() - lastUpdateTime
   let timeSinceLastWatered = Date.now() - lastWateredTime
 
@@ -236,6 +246,8 @@ const apply = () => {
   shelves.forEach(shelf => {
     shelf.pots.forEach(pot => setPlantStage(pot.plant, timePassed))
   })
+  updateTexts()
+  save()
 }
 
 const showSelectPlantMenu = () => {
@@ -253,6 +265,7 @@ const showSelectPlantMenu = () => {
     if (points < plants[addPlantSelectedPlantIndex].cost) return
     addPlant(plants[addPlantSelectedPlantIndex])
     points -= plants[addPlantSelectedPlantIndex].cost
+    apply()
     closeSelectPlantMenu()
   })
   addPlantMenuConfirmButton.y = 126
@@ -298,9 +311,10 @@ const showSelectPlantMenu = () => {
 const setAddPlantMenuMeta = () => {
   const plant = plants[addPlantSelectedPlantIndex]
   selectPlantMenuMeta.innerHTML = `
-  Cost: $${getAmountText(plant.cost)}<br>
-  Value: $${getAmountText(plant.value)}<br>
-  Time: ${getTimeAmount(plant.growthTime)}
+  
+  $${getAmountText(plant.cost)} - 
+  ${getTimeAmount(plant.growthTime)}<br>
+  Sell: $${getAmountText(plant.value)}
   `
   addPlantMenuPreview.x = addPlantMenuBg.width / 2 - (addPlantMenuPreview.width / 2)
   addPlantMenuPreview.y = 20 + addPlantMenuBg.height / 2 - (addPlantMenuPreview.height / 2)
@@ -348,26 +362,29 @@ const getTimeAmount = (value) => {
   value /= 1000
   let suffix = 'S'
   if (value >= 60) {
-    suffix = 'M'
+    suffix = ' minute'
     value /= 60
     if (value >= 60) {
-      suffix = 'H'
+      suffix = ' hour'
       value /= 60
       if (value >= 24) {
-        suffix = 'D'
+        suffix = ' day'
         value /= 24
       }
     }
   }
-  return Math.round(value) + suffix
+  value = Math.round(value)
+  if (value !== 1 && suffix) suffix += 's'
+  return value + suffix
 }
 
 const save = () => {
   if (killed) return
   let data = {
+    version,
     lastUpdateTime,
     lastWateredTime,
-    version,
+    addPlantSelectedPlantIndex,
     points,
     shelves: shelves.map(shelf => {
       return shelf.pots.map(pot => {
@@ -391,6 +408,7 @@ const load = (data) => {
   if (data) {
     lastUpdateTime = data.lastUpdateTime
     lastWateredTime = data.lastWateredTime
+    addPlantSelectedPlantIndex = data.addPlantSelectedPlantIndex
     points = data.points
     data.shelves.forEach(shelfData => {
       shelfData.forEach(plantData => {
@@ -404,10 +422,7 @@ const load = (data) => {
   }
 
   apply()
-  applyWater()
-  updateTexts()
-
-  setInterval(loop, checkRate)
+  setInterval(apply, checkRate)
 }
 
 const init = (numberOfShelves) => {
@@ -437,12 +452,6 @@ const reset = () => {
   localStorage.removeItem('data')
   killed = true
   window.location.reload()
-}
-
-const loop = () => {
-  apply()
-  applyWater()
-  save()
 }
 
 
