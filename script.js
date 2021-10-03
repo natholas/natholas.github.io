@@ -57,7 +57,7 @@ let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantM
 const plants = [
   {
     key: 'flower-1',
-    growthTime: 15,
+    growthTime: 1000 * 60 * 0.5,
     growthRateVariation: 1.5,
     numberOfStages: 6,
     value: 2,
@@ -66,7 +66,7 @@ const plants = [
   },
   {
     key: 'cactus-1',
-    growthTime: 35,
+    growthTime: 1000 * 60 * 1,
     growthRateVariation: 1.5,
     numberOfStages: 6,
     value: 4,
@@ -74,12 +74,21 @@ const plants = [
     spaces: 1
   },
   {
-    key: 'big-1',
-    growthTime: 60 * 2,
+    key: 'bush-1',
+    growthTime: 1000 * 60 * 5,
     growthRateVariation: 1.5,
-    numberOfStages: 6,
+    numberOfStages: 8,
     value: 30,
     cost: 16,
+    spaces: 1
+  },
+  {
+    key: 'big-1',
+    growthTime: 1000 * 60 * 10,
+    growthRateVariation: 1.5,
+    numberOfStages: 6,
+    value: 40,
+    cost: 25,
     spaces: 2
   },
 ]
@@ -107,7 +116,7 @@ const getRandomPlant = () => {
 // timePassed: amount of time the plant has been growing for since last check
 const setPlantStage = (plant, timePassed) => {
   const template = plants.find(_plant => _plant.key === plant.key)
-  plant.growthAmount += timePassed / 1000
+  plant.growthAmount += timePassed
   const stageGrowthTime = plant.growthTime / template.numberOfStages
   while (plant.growthAmount >= stageGrowthTime) {
     if (plant.stage === template.numberOfStages) break
@@ -138,10 +147,9 @@ const deletePot = (shelf, pot) => {
   app.stage.removeChild(pot.sprite)
   shelf.pots.splice(shelf.pots.indexOf(pot), 1)
   shelf.pots.forEach((pot, i) => {
-    let offset = 5
-    let previous = shelf.pots[i - 1]
-    if (previous) offset = previous.sprite.x + previous.sprite.width * previous.spaces
-    pot.sprite.x = offset + 4
+    const spacesTaken = shelf.pots.slice(0, i).reduce((t, pot) => t + pot.spaces, 0)
+    const x = 9 + spacesTaken * 28
+    pot.sprite.x = x + pot.plant.sprite.width / 2 - pot.sprite.width /2
   })
 
   removeEmptyShelves()
@@ -171,13 +179,13 @@ const water = () => {
   applyWater()
 }
 
-const getNextEmptyShelf = () => {
-  const shelf = shelves.find(shelf => shelf.pots.reduce((t, pot) => t + pot.spaces, 0) < 4)
+const getNextEmptyShelf = (spaces) => {
+  const shelf = shelves.find(shelf => shelf.pots.reduce((t, pot) => t + pot.spaces, 0) < 5 - spaces)
   return shelf || addShelf()
 }
 
 const addPlant = (plantTemplate) => {
-  let index = shelves.indexOf(getNextEmptyShelf())
+  let index = shelves.indexOf(getNextEmptyShelf(plantTemplate.spaces))
   const shelf = shelves[index]
   const potSprite = new PIXI.Sprite(loader.resources.pot.texture)
   app.stage.addChild(potSprite)
