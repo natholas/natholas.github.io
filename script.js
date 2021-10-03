@@ -22,6 +22,7 @@ let points = 20
 let bottomSprite
 let waterLevel = maxWaterLevel
 let waterLevelSprite
+let killed = false
 
 let lastUpdateTime = Date.now()
 let lastWateredTime = Date.now()
@@ -105,11 +106,12 @@ const getRandomPlant = () => {
 
 // timePassed: amount of time the plant has been growing for since last check
 const setPlantStage = (plant, timePassed) => {
+  const template = plants.find(_plant => _plant.key === plant.key)
   plant.growthAmount += timePassed / 1000
-  while (plant.growthAmount >= plant.growthTime) {
-    const template = plants.find(_plant => _plant.key === plant.key)
+  const stageGrowthTime = plant.growthTime / template.numberOfStages
+  while (plant.growthAmount >= stageGrowthTime) {
     if (plant.stage === template.numberOfStages) break
-    plant.growthAmount -= plant.growthTime
+    plant.growthAmount -= stageGrowthTime
     plant.stage += 1
   }
   plant.sprite.texture = loader.resources[plant.key + '_stage-' + plant.stage].texture
@@ -335,6 +337,7 @@ const getAmountText = (value) => {
 }
 
 const save = () => {
+  if (killed) return
   let data = {
     lastUpdateTime,
     lastWateredTime,
@@ -406,6 +409,7 @@ const init = (numberOfShelves) => {
 const reset = () => {
   if (!confirm('Are you sure?')) return
   localStorage.removeItem('data')
+  killed = true
   window.location.reload()
 }
 
