@@ -1,3 +1,5 @@
+const version = 2
+
 const numberOfShelves = 3
 const shelfHeight = 48
 const sizeMultiplier = 4
@@ -7,7 +9,7 @@ const waterDrainAmount = 0.2
 const checkRate = 500
 const maxWaterLevel = 4
 const minShelves = 3
-const waterDrainTime = 1000 * 60
+const waterDrainTime = 1000 * 60 * 5
 
 let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
@@ -95,32 +97,6 @@ plants.forEach(plant => {
   }
 })
 
-loader.load(() => {
-  const topSprite = createSprite('bg-top')
-  topSprite.y = 16
-
-  bottomSprite = createSprite('bg-bottom')
-  bottomSprite.y = topHeight
-
-  for (let i = 0; i < minShelves; i++) addShelf()
-
-  textFrame = createSprite('text-frame')
-
-  waterLevelSprite = createSprite('water-level')
-  waterLevelSprite.y = 6
-  waterLevelSprite.x = 62
-  waterLevelSprite.height = 8
-
-  // Add buttons
-  createSprite('button_add-plant', showSelectPlantMenu)
-
-  const waterButtonSprite = createSprite('button_water', water)
-  waterButtonSprite.x = 128 - waterButtonSprite.width
-
-  applyWater()
-  updateTexts()
-})
-
 const createSprite = (name, onClick) => {
   const sprite = new PIXI.Sprite(loader.resources[name].texture)
   app.stage.addChild(sprite)
@@ -144,8 +120,8 @@ const setPlantStage = (plant, timePassed) => {
     if (plant.stage === template.numberOfStages) break
     plant.growthAmount -= plant.growthTime
     plant.stage += 1
-    plant.sprite.texture = loader.resources[plant.key + '_stage-' + plant.stage].texture
   }
+  plant.sprite.texture = loader.resources[plant.key + '_stage-' + plant.stage].texture
 }
 
 const addShelf = () => {
@@ -208,8 +184,6 @@ const getNextEmptyShelf = () => {
 }
 
 const addPlant = (plantTemplate) => {
-  if (points < plantTemplate.cost) return
-  points -=  plantTemplate.cost
   let index = shelves.indexOf(getNextEmptyShelf())
   const shelf = shelves[index]
   const potSprite = new PIXI.Sprite(loader.resources.pot.texture)
@@ -231,6 +205,7 @@ const addPlant = (plantTemplate) => {
   pot.plant = {stage: 1, key: plantTemplate.key, sprite: plantSprite, growthTime, growthAmount: 0, value: plantTemplate.value}
   shelf.pots.push(pot)
   updateTexts()
+  return pot.plant
 }
 
 const applyWater = () => {
@@ -245,11 +220,6 @@ const getTotalNumberOfPlants = () => {
   let total = 0
   shelves.forEach(shelf => total += shelf.pots.length)
   return total
-}
-
-const loop = () => {
-  apply()
-  applyWater()
 }
 
 const apply = () => {
@@ -281,6 +251,7 @@ const showSelectPlantMenu = () => {
   addPlantMenuConfirmButton = createSprite('button_confirm', () => {
     if (points < plants[addPlantSelectedPlantIndex].cost) return
     addPlant(plants[addPlantSelectedPlantIndex])
+    points -= plants[addPlantSelectedPlantIndex].cost
     closeSelectPlantMenu()
   })
   addPlantMenuConfirmButton.y = 126
@@ -372,4 +343,94 @@ const getAmountText = (value) => {
   return val + units[unitIndex]
 }
 
-setInterval(loop, checkRate)
+const save = () => {
+  let data = {
+    lastUpdateTime,
+    lastWateredTime,
+    version,
+    points,
+    shelves: shelves.map(shelf => {
+      return shelf.pots.map(pot => {
+        return {
+          key: pot.plant.key,
+          growthAmount: pot.plant.growthAmount,
+          growthTime: pot.plant.growthTime,
+          stage: pot.plant.stage,
+        }
+      })
+    }).filter(a => a.length)
+  }
+  localStorage.setItem('data', JSON.stringify(data))
+}
+
+const load = (data) => {
+  let shelfCount = minShelves
+  if (data && data.shelves.length > shelfCount) shelfCount = data.shelves.length
+  init(shelfCount)
+
+  if (data) {
+    lastUpdateTime = data.lastUpdateTime
+    lastWateredTime = data.lastWateredTime
+    points = data.points
+    data.shelves.forEach(shelfData => {
+      shelfData.forEach(plantData => {
+        let template = plants.find(p => p.key === plantData.key)
+        const plant = addPlant(template)
+        plant.growthAmount = plantData.growthAmount
+        plant.growthTime = plantData.growthTime
+        plant.stage = plantData.stage
+      })
+    })
+  }
+
+  apply()
+  applyWater()
+  updateTexts()
+
+  setInterval(loop, checkRate)
+}
+
+const init = (numberOfShelves) => {
+  const topSprite = createSprite('bg-top')
+  topSprite.y = 16
+  bottomSprite = createSprite('bg-bottom')
+  bottomSprite.y = topHeight
+
+  for (let i = 0; i < numberOfShelves; i++) addShelf()
+
+  textFrame = createSprite('text-frame')
+
+  waterLevelSprite = createSprite('water-level')
+  waterLevelSprite.y = 6
+  waterLevelSprite.x = 62
+  waterLevelSprite.height = 8
+
+  // Add buttons
+  createSprite('button_add-plant', showSelectPlantMenu)
+
+  const waterButtonSprite = createSprite('button_water', water)
+  waterButtonSprite.x = 128 - waterButtonSprite.width
+}
+
+const reset = () => {
+  if (!confirm('Are you sure?')) return
+  localStorage.removeItem('data')
+  window.location.reload()
+}
+
+const loop = () => {
+  apply()
+  applyWater()
+  save()
+}
+
+
+loader.load(() => {
+  let data
+  try {
+    data = JSON.parse(localStorage.getItem('data'))
+    if (data.version !== version) data = undefined
+  } catch(e) {}
+  load(data)
+})
+

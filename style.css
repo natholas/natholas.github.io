@@ -54,3 +54,10 @@ canvas {
 #select-plant-meta.shown {
  opacity: 1; 
 }
+
+#reset-button {
+  position: absolute;
+  top:0;
+  left: 0;
+  opacity: 0.1;
+}
