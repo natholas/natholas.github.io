@@ -18,7 +18,7 @@ document.body.appendChild(app.view);
 const loader = PIXI.Loader.shared;
 const sprites = {};
 const shelves = []
-let points = 20
+let points = 4
 let bottomSprite
 let waterLevel = maxWaterLevel
 let waterLevelSprite
