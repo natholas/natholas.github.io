@@ -285,7 +285,10 @@ const showSelectPlantMenu = () => {
   addPlantMenuSprites.push(closeButton)
 
   addPlantMenuConfirmButton = createSprite('button_confirm', () => {
-    if (points < plants[addPlantSelectedPlantIndex].cost) return
+    if (points < plants[addPlantSelectedPlantIndex].cost) {
+      sounds.buttonDisabled.play()
+      return
+    }
     addPlant(plants[addPlantSelectedPlantIndex])
     points -= plants[addPlantSelectedPlantIndex].cost
     apply()
