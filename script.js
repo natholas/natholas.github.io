@@ -9,12 +9,12 @@ document.body.appendChild(values.app.view);
 
 const loader = PIXI['Loader'].shared;
 
-  values.sounds.money = PIXI['sound'].Sound.from({url: '/assets/sounds/money.mp3', autoPlay: false}),
-  values.sounds.plant = PIXI['sound'].Sound.from({url: '/assets/sounds/plant.mp3', autoPlay: false}),
-  values.sounds.button = PIXI['sound'].Sound.from({url: '/assets/sounds/button.mp3', autoPlay: false}),
-  values.sounds.buttonDisabled = PIXI['sound'].Sound.from({url: '/assets/sounds/button-disabled.mp3', autoPlay: false}),
-  values.sounds.water = PIXI['sound'].Sound.from({url: '/assets/sounds/water.mp3', autoPlay: false}),
-  values.sounds.turn = PIXI['sound'].Sound.from({url: '/assets/sounds/turn.mp3', autoPlay: false}),
+values.sounds.money = PIXI['sound'].Sound.from({url: '/assets/sounds/money.mp3', autoPlay: false}),
+values.sounds.plant = PIXI['sound'].Sound.from({url: '/assets/sounds/plant.mp3', autoPlay: false}),
+values.sounds.button = PIXI['sound'].Sound.from({url: '/assets/sounds/button.mp3', autoPlay: false}),
+values.sounds.buttonDisabled = PIXI['sound'].Sound.from({url: '/assets/sounds/button-disabled.mp3', autoPlay: false}),
+values.sounds.water = PIXI['sound'].Sound.from({url: '/assets/sounds/water.mp3', autoPlay: false}),
+values.sounds.turn = PIXI['sound'].Sound.from({url: '/assets/sounds/turn.mp3', autoPlay: false}),
 
 // load main textures
 loader.add('bg', 'assets/bg.png')
