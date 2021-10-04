@@ -1,3 +1,5 @@
+//@ts-check
+
 export const configs = {
   version: 4,
   shelfHeight: 48,
@@ -11,6 +13,7 @@ export const configs = {
 }
 
 export const values = {
+  app: undefined,
   shelves: [],
   points: 4,
   bottomSprite: undefined,
@@ -32,4 +35,10 @@ export const values = {
   addPlantMenuBg: undefined,
   leftPotArrow: undefined,
   rightPotArrow: undefined,
+  sounds: {}
+}
+
+export const htmlElements = {
+  selectPlantMenuMeta: document.getElementById('select-plant-meta'),
+  waterLevelText: document.getElementById('water-level')
 }
