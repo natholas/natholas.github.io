@@ -1,8 +1,7 @@
-const version = 4
+import { plants } from './plants.js'
 
-const numberOfShelves = 3
+const version = 4
 const shelfHeight = 48
-const sizeMultiplier = 4
 const topHeight = 28
 const bottomHeight = 20
 const checkRate = 1000
@@ -10,16 +9,14 @@ const minShelves = 3
 const waterDrainTime = 1000 * 60 * 15
 const numberOfPots = 3
 
-let timeScale = 1
-
-let app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
+const app = new PIXI.Application({ width: 128, height: topHeight + bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST;
 document.body.appendChild(app.view);
 
 const loader = PIXI.Loader.shared;
-const sprites = {};
 const shelves = []
 let points = 4
+let timeScale = 1
 let bottomSprite
 let waterLevel
 let waterLevelSprite
@@ -48,83 +45,20 @@ loader.add('bg-top', 'assets/bg-top.png')
 loader.add('bg-bottom', 'assets/bg-bottom.png')
 loader.add('text-frame', 'assets/text-frame.png')
 loader.add('water-level', 'assets/water-level.png')
-
-for (let i = 1; i <= numberOfPots; i++) {
-  loader.add('pot-' + i, 'assets/pot-' + i + '.png')
-}
-
 loader.add('plant-select-menu-bg', 'assets/plant-select-menu-bg.png')
 loader.add('arrow-left', 'assets/buttons/arrow-left.png')
 loader.add('arrow-right', 'assets/buttons/arrow-right.png')
-
-// load buttons
 loader.add('button_add-plant', 'assets/buttons/add-plant.png')
 loader.add('button_water', 'assets/buttons/water.png')
 loader.add('button_confirm', 'assets/buttons/confirm.png')
 loader.add('button_close', 'assets/buttons/close.png')
+for (let i = 1; i <= numberOfPots; i++) loader.add('pot-' + i, 'assets/pot-' + i + '.png')
 
-let addPlantMenuSprites = []
-let addPlantSelectedPlantIndex = 0
-let addPlantSelectedPotIndex = 0
+let addPlantMenuSprites = [], addPlantSelectedPlantIndex = 0, addPlantSelectedPotIndex = 0
+let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantMenuPreview, addPlantMenuBg, leftPotArrow, rightPotArrow
 
-
-let leftArrow, rightArrow, addPlantMenuConfirmButton, addPlantMenuPot, addPlantMenuPreview, addPlantMenuBg
-
-// load all plant stages
-const plants = [
-  {
-    key: 'flower-1',
-    growthTime: 1000 * 60 * 1,
-    numberOfStages: 6,
-    value: 1,
-    cost: 0.5,
-    spaces: 1,
-  },
-  {
-    key: 'flower-2',
-    growthTime: 1000 * 60 * 2,
-    numberOfStages: 5,
-    value: 2,
-    cost: 1,
-    spaces: 1,
-  },
-  {
-    key: 'cactus-1',
-    growthTime: 1000 * 60 * 5,
-    numberOfStages: 6,
-    value: 10,
-    cost: 5,
-    spaces: 1,
-  },
-  {
-    key: 'bush-1',
-    growthTime: 1000 * 60 * 15,
-    numberOfStages: 8,
-    value: 50,
-    cost: 20,
-    spaces: 1,
-  },
-  {
-    key: 'cactus-2',
-    growthTime: 1000 * 60 * 25,
-    numberOfStages: 7,
-    value: 120,
-    cost: 58,
-    spaces: 1,
-  },
-  {
-    key: 'big-1',
-    growthTime: 1000 * 60 * 45,
-    numberOfStages: 6,
-    value: 190,
-    cost: 88,
-    spaces: 2,
-  },
-]
 plants.forEach(plant => {
-  for (let i = 0; i <= plant.numberOfStages; i++) {
-    loader.add(plant.key + '_stage-' + i, 'assets/'+ plant.key +'/stage-' + i +'.png')
-  }
+  for (let i = 0; i <= plant.numberOfStages; i++) loader.add(plant.key + '_stage-' + i, 'assets/'+ plant.key +'/stage-' + i +'.png')
 })
 
 const createSprite = (name, onClick) => {
@@ -135,11 +69,6 @@ const createSprite = (name, onClick) => {
     sprite.on('pointerdown', onClick);
   }
   return sprite
-}
-
-const getRandomPlant = () => {
-  const index = Math.floor(Math.random() * plants.length)
-  return plants[index]
 }
 
 // timePassed: amount of time the plant has been growing for since last check
@@ -428,7 +357,7 @@ const closeSelectPlantMenu = () => {
   })
 }
 
-updateTexts = () => {
+const updateTexts = () => {
   waterLevelText.innerText = "$" + getAmountText(points)
   let percent = waterLevel / 100
   if (percent > 1) percent = 1
@@ -525,7 +454,7 @@ const init = (numberOfShelves) => {
 
   for (let i = 0; i < numberOfShelves; i++) addShelf()
 
-  textFrame = createSprite('text-frame')
+  createSprite('text-frame')
 
   waterLevelSprite = createSprite('water-level')
   waterLevelSprite.y = 6
@@ -551,7 +480,7 @@ const showNotification = (title, options) => {
    });
 }
 
-const reset = () => {
+window.reset = () => {
   if (!confirm('Are you sure?')) return
   localStorage.removeItem('data')
   killed = true
