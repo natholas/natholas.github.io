@@ -26,7 +26,7 @@ export const plants = [
   {
     key: 'cactus-1',
     growthTime: 1000 * 60 * 5,
-    numberOfStages: 6,
+    numberOfStages: 10,
     value: 10,
     cost: 5,
     spaces: 1,
@@ -61,6 +61,14 @@ export const plants = [
     numberOfStages: 7,
     value: 120,
     cost: 58,
+    spaces: 1,
+  },
+  {
+    key: 'tree-1',
+    growthTime: 1000 * 60 * 35,
+    numberOfStages: 6,
+    value: 150,
+    cost: 65,
     spaces: 1,
   },
   {
