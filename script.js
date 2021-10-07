@@ -17,7 +17,8 @@ values.sounds.water = PIXI['sound'].Sound.from({url: '/assets/sounds/water.mp3',
 values.sounds.turn = PIXI['sound'].Sound.from({url: '/assets/sounds/turn.mp3', autoPlay: false}),
 
 // load main textures
-loader.add('bg', 'assets/bg.png')
+loader.add('shelf-1', 'assets/shelf-1.png')
+loader.add('shelf-2', 'assets/shelf-2.png')
 loader.add('bg-top', 'assets/bg-top.png')
 loader.add('bg-bottom', 'assets/bg-bottom.png')
 loader.add('text-frame', 'assets/text-frame.png')

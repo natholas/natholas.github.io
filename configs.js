@@ -9,7 +9,7 @@ export const configs = {
   minShelves: 3,
   waterDrainTime: 1000 * 60 * 30,
   numberOfPots: 7,
-  timeScale: 1,
+  timeScale: 1000,
 }
 
 export const values = {

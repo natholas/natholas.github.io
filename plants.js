@@ -6,6 +6,7 @@ export const plants = [
     value: 2,
     cost: 1,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'flower-2',
@@ -14,6 +15,7 @@ export const plants = [
     value: 4,
     cost: 2,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'succulent-1',
@@ -22,6 +24,7 @@ export const plants = [
     value: 5,
     cost: 3,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'cactus-1',
@@ -30,6 +33,7 @@ export const plants = [
     value: 10,
     cost: 5,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'succulent-2',
@@ -38,6 +42,7 @@ export const plants = [
     value: 20,
     cost: 8,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'cactus-3',
@@ -46,6 +51,7 @@ export const plants = [
     value: 25,
     cost: 10,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'bush-1',
@@ -54,6 +60,7 @@ export const plants = [
     value: 50,
     cost: 20,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'cactus-2',
@@ -62,6 +69,7 @@ export const plants = [
     value: 120,
     cost: 58,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'tree-1',
@@ -70,6 +78,7 @@ export const plants = [
     value: 150,
     cost: 65,
     spaces: 1,
+    height: 1,
   },
   {
     key: 'big-1',
@@ -78,5 +87,15 @@ export const plants = [
     value: 190,
     cost: 88,
     spaces: 2,
+    height: 1,
+  },
+  {
+    key: 'test-plant',
+    growthTime: 1000 * 60 * 1,
+    numberOfStages: 1,
+    value: 1,
+    cost: 1,
+    spaces: 2,
+    height: 2
   },
 ]
