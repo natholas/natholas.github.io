@@ -7,7 +7,7 @@ export const configs = {
   bottomHeight: 20,
   checkRate: 1000,
   minShelves: 3,
-  waterDrainTime: 1000 * 60 * 15,
+  waterDrainTime: 1000 * 60 * 30,
   numberOfPots: 7,
   timeScale: 1,
 }
