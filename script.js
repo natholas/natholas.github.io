@@ -48,6 +48,8 @@ window['reset'] = () => {
 }
 
 loader.load(() => {
+  const loading = document.getElementById('loading')
+  document.body.removeChild(loading)
   let data
   try {
     data = JSON.parse(localStorage.getItem('data'))
