@@ -5,7 +5,10 @@ import { load } from './lib/load.js'
 
 values.app = new PIXI['Application']({ width: 128, height: configs.topHeight + configs.bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI['SCALE_MODES'].NEAREST;
-document.body.appendChild(values.app.view);
+document.getElementById('canvas-container').appendChild(values.app.view);
+
+values.app.renderer.view.style.touchAction = 'auto';
+values.app.renderer.plugins.interaction.autoPreventDefault = false;
 
 const loader = PIXI['Loader'].shared;
 

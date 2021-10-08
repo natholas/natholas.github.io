@@ -2,6 +2,7 @@ body {
   margin: 0;
   background-color: #395248;
   font-family: pixelFont;
+  padding-bottom: 40px;
 }
 
 body * {
@@ -57,10 +58,9 @@ canvas {
 }
 
 #reset-button {
-  position: absolute;
-  bottom: 0;
-  left: 0;
   opacity: 0.1;
+  margin: 20px auto 0;
+  display: block;
 }
 
 @media (max-width: 522px) {
@@ -76,4 +76,10 @@ canvas {
     top: 30vw;
     font-size: 5vw;
   }
+}
+
+.attribution {
+  text-align: center;
+  margin-top: 20px;
+  opacity: 0.5;
 }
