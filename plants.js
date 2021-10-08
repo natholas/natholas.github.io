@@ -90,11 +90,11 @@ export const plants = [
     height: 1,
   },
   {
-    key: 'test-plant',
-    growthTime: 1000 * 60 * 1,
-    numberOfStages: 1,
-    value: 1,
-    cost: 1,
+    key: 'tree-2',
+    growthTime: 1000 * 60 * 60 * 1.5,
+    numberOfStages: 11,
+    value: 2800,
+    cost: 1000,
     spaces: 2,
     height: 2
   },
