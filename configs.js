@@ -12,6 +12,7 @@ export const configs = {
   shelfBaseCost: 100,
   shelfCostMultiplier: 3,
   timeScale: 1,
+  scale: 2
 }
 
 export const values = {
@@ -28,7 +29,6 @@ export const values = {
   lastWaterCheckTime: Date.now(),
   plantMenuOpen: false,
   addPlantMenuSprites: [],
-  shelfLimitMenuSprites: [],
   addPlantSelectedPlantIndex: 0,
   addPlantSelectedPotIndex: 0,
   leftArrow: undefined,
@@ -39,13 +39,16 @@ export const values = {
   addPlantMenuBg: undefined,
   leftPotArrow: undefined,
   rightPotArrow: undefined,
+  sounds: {},
   shelfLimitMenuOpen: false,
-  shelfLimitMenuBg: undefined,
-  sounds: {}
+  shelfLimitMenuSprites: [],
+  plantInfoMenuOpen: false,
+  plantInfoMenuSprites: [],
 }
 
 export const htmlElements = {
   selectPlantMenuMeta: document.getElementById('select-plant-meta'),
   shelfLimitMenuMeta: document.getElementById('shelf-limit-meta'),
+  plantInfoMeta: document.getElementById('plant-info-meta'),
   waterLevelText: document.getElementById('water-level')
 }
