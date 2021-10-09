@@ -15,6 +15,7 @@ export const configs = {
 }
 
 export const values = {
+  stats: {waters: 0, planted: {}, harvested: {}},
   app: undefined,
   shelves: [],
   points: 0,
