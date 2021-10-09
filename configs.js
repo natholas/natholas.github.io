@@ -5,26 +5,29 @@ export const configs = {
   shelfHeight: 48,
   topHeight: 28,
   bottomHeight: 20,
+  numberOfPots: 7,
   checkRate: 1000,
   minShelves: 4,
   waterDrainTime: 1000 * 60 * 30,
-  numberOfPots: 7,
+  shelfBaseCost: 100,
+  shelfCostMultiplier: 3,
   timeScale: 1,
 }
 
 export const values = {
   app: undefined,
   shelves: [],
-  points: 4,
+  points: 0,
   bottomSprite: undefined,
   waterLevel: undefined,
   waterLevelSprite: undefined,
   killed: false,
-  plantMenuOpen: false,
   lastUpdateTime: Date.now(),
   lastWateredTime: Date.now(),
   lastWaterCheckTime: Date.now(),
+  plantMenuOpen: false,
   addPlantMenuSprites: [],
+  shelfLimitMenuSprites: [],
   addPlantSelectedPlantIndex: 0,
   addPlantSelectedPotIndex: 0,
   leftArrow: undefined,
@@ -35,10 +38,13 @@ export const values = {
   addPlantMenuBg: undefined,
   leftPotArrow: undefined,
   rightPotArrow: undefined,
+  shelfLimitMenuOpen: false,
+  shelfLimitMenuBg: undefined,
   sounds: {}
 }
 
 export const htmlElements = {
   selectPlantMenuMeta: document.getElementById('select-plant-meta'),
+  shelfLimitMenuMeta: document.getElementById('shelf-limit-meta'),
   waterLevelText: document.getElementById('water-level')
 }
