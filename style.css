@@ -167,3 +167,9 @@ canvas {
 .stat-key {
   flex: 1 1 auto;
 }
+
+.add-name {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+}
