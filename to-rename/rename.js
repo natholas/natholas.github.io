@@ -15,11 +15,3 @@ files.filter(name => {
   const stage = name.split('stage-')[1]
   fs.renameSync(__dirname + '/' + name, __dirname + '/stage-' + stage)
 })
-   
-// // Rename the file
-// fs.rename('hello.txt', 'world.txt', () => {
-//   console.log("\nFile Renamed!\n");
-   
-//   // List all the filenames after renaming
-//   getCurrentFilenames();
-// });
