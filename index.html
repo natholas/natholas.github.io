@@ -48,7 +48,7 @@
 
       <div class="highscores">
         <h1>Highscores</h1>
-        <div v-for="(data, index) in highscores" class="stat-row">
+        <div v-for="(data, index) in highscores" class="stat-row" v-bind:class="{active: uid === data.user}">
           <div class="stat-key">
             {{index + 1}} - {{data.name}}
           </div>
