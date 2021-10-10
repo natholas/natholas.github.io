@@ -1,7 +1,36 @@
 //@ts-check
+
 import { plants } from './plants.js'
 import { configs, values } from './configs.js'
 import { load } from './lib/load.js'
+
+// Import the functions you need from the SDKs you need
+// @ts-ignore
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js";
+// @ts-ignore
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-analytics.js";
+// @ts-ignore
+import { setupVueApp } from './lib/setup-vue.js';
+import { initAuth } from './lib/init-auth.js';
+import { init } from './lib/init.js';
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyCglT27J6zNj1VA0JubXgfEZQEGeT6EuIc",
+  authDomain: "plants-9ff40.firebaseapp.com",
+  projectId: "plants-9ff40",
+  storageBucket: "plants-9ff40.appspot.com",
+  messagingSenderId: "914156310539",
+  appId: "1:914156310539:web:df895535aadcbfc048f70e",
+  measurementId: "G-KL7TJSM52M"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+setupVueApp()
 
 values.app = new PIXI['Application']({ width: 128, height: configs.topHeight + configs.bottomHeight, backgroundAlpha: 0 });
 PIXI.settings.SCALE_MODE = PIXI['SCALE_MODES'].NEAREST;
@@ -48,13 +77,15 @@ window['reset'] = () => {
   window.location.reload()
 }
 
-loader.load(() => {
+loader.load(async () => {
   const loading = document.getElementById('loading')
-  document.body.removeChild(loading)
+  loading.parentElement.removeChild(loading)
   let data
   try {
     data = JSON.parse(localStorage.getItem('data'))
     if (data.version !== configs.version) data = undefined
   } catch(e) {}
+  init()
   load(data)
+  await initAuth()
 })

@@ -7,25 +7,35 @@
   <title>Plants</title>
   <script src="/pixi.min.js"></script>
   <script src="/pixi-sound.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
   <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
-  <div class="texts">
-    <div id="water-level"></div>
+  <div id="app">
+    <div class="header">
+      <div v-if="loggedIn">Logged in as: {{email}} (<span v-on:click="logout()">Logout</span>)</div>
+      <div v-if="!loggedIn" v-on:click="login()">Login</div>
+    </div>
+    <div class="wrapper">
+      <div class="texts">
+        <div id="water-level">{{money}}</div>
+      </div>
+    
+      <div id="select-plant-meta" v-if="plantMenuOpen" v-html="selectPlantMenuMeta"></div>
+      <div id="shelf-limit-meta" v-if="shelfLimitMenuOpen" v-html="shelfLimitMenuMeta"></div>
+      <div id="plant-info-meta" v-if="plantInfoMenuOpen" v-html="plantInfoMeta"></div>
+    
+      <div id="loading">Loading...</div>
+      <div id="canvas-container">
+      </div>
+      
+      <div class="attribution">
+        Plants - By David & Nathan Felix
+      </div>
+      
+      <button id="reset-button" onclick="reset()">RESET</button>
+    </div>
   </div>
-
-  <div id="select-plant-meta"></div>
-  <div id="shelf-limit-meta"></div>
-  <div id="plant-info-meta"></div>
-
-  <div id="loading">Loading...</div>
-  <div id="canvas-container"></div>
-  
-  <div class="attribution">
-    Plants - By David & Nathan Felix
-  </div>
-  
-  <button id="reset-button" onclick="reset()">RESET</button>
   
   <script type="module" src="script.js?v=3"></script>
 </body>

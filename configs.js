@@ -16,8 +16,10 @@ export const configs = {
 }
 
 export const values = {
+  uid: undefined,
   stats: {waters: 0, planted: {}, harvested: {}},
   app: undefined,
+  vueApp: undefined,
   shelves: [],
   points: 0,
   bottomSprite: undefined,
@@ -27,7 +29,6 @@ export const values = {
   lastUpdateTime: Date.now(),
   lastWateredTime: Date.now(),
   lastWaterCheckTime: Date.now(),
-  plantMenuOpen: false,
   addPlantMenuSprites: [],
   addPlantSelectedPlantIndex: 0,
   addPlantSelectedPotIndex: 0,
@@ -40,15 +41,7 @@ export const values = {
   leftPotArrow: undefined,
   rightPotArrow: undefined,
   sounds: {},
-  shelfLimitMenuOpen: false,
   shelfLimitMenuSprites: [],
-  plantInfoMenuOpen: false,
   plantInfoMenuSprites: [],
-}
-
-export const htmlElements = {
-  selectPlantMenuMeta: document.getElementById('select-plant-meta'),
-  shelfLimitMenuMeta: document.getElementById('shelf-limit-meta'),
-  plantInfoMeta: document.getElementById('plant-info-meta'),
-  waterLevelText: document.getElementById('water-level')
+  loadingUserData: false,
 }
