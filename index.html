@@ -20,6 +20,7 @@
       <div class="stats-button" v-if="statsVisible" v-on:click="closeStats()">[Close]</div>
     </div>
     <div class="stats" v-if="statsVisible">
+      <h1>Stats</h1>
       <div class="stat-row">
         <div class="stat-key">
           Planted: 
@@ -47,12 +48,12 @@
 
       <div class="highscores">
         <h1>Highscores</h1>
-        <div v-for="data in highScores" class="stat-row">
+        <div v-for="(data, index) in highscores" class="stat-row">
           <div class="stat-key">
-            {{data.name}}
+            {{index + 1}} - {{data.name}}
           </div>
           <div class="stat-value">
-            {{data.plantData.points}}
+            ${{data.totalPoints}}
           </div>
         </div>
       </div>
