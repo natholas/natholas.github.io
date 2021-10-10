@@ -12,7 +12,6 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.1.2/firebase-
 // @ts-ignore
 import { setupVueApp } from './lib/setup-vue.js';
 import { initAuth } from './lib/init-auth.js';
-import { init } from './lib/init.js';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -85,7 +84,6 @@ loader.load(async () => {
     data = JSON.parse(localStorage.getItem('data'))
     if (data.version !== configs.version) data = undefined
   } catch(e) {}
-  init()
   load(data)
   await initAuth()
 })

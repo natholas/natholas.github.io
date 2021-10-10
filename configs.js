@@ -11,13 +11,13 @@ export const configs = {
   waterDrainTime: 1000 * 60 * 30,
   shelfBaseCost: 100,
   shelfCostMultiplier: 3,
-  timeScale: 1,
+  timeScale: 10,
   scale: 2
 }
 
 export const values = {
+  maxShelfCount: 4,
   uid: undefined,
-  stats: {waters: 0, planted: {}, harvested: {}},
   app: undefined,
   vueApp: undefined,
   shelves: [],
