@@ -16,10 +16,8 @@
       <div v-if="loggedIn" class="login"><span>Logged in as: {{email}}</span> (<span v-on:click="logout()">Logout</span>)</div>
       <div v-if="!loggedIn" class="login" v-on:click="login()">Login</div>
       <div class="spacer"></div>
-      <div class="stats-button" v-on:click="statsVisible = !statsVisible">
-        <span v-if="!statsVisible">[Stats]</span>
-        <span v-if="statsVisible">[Close]</span>
-      </div>
+      <div class="stats-button" v-if="!statsVisible" v-on:click="openStats()">[Stats]</div>
+      <div class="stats-button" v-if="statsVisible" v-on:click="closeStats()">[Close]</div>
     </div>
     <div class="stats" v-if="statsVisible">
       <div class="stat-row">
@@ -44,6 +42,18 @@
         </div>
         <div class="stat-value">
           {{getWaters}}
+        </div>
+      </div>
+
+      <div class="highscores">
+        <h1>Highscores</h1>
+        <div v-for="data in highScores" class="stat-row">
+          <div class="stat-key">
+            {{data.name}}
+          </div>
+          <div class="stat-value">
+            {{data.plantData.points}}
+          </div>
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export const configs = {
   waterDrainTime: 1000 * 60 * 30,
   shelfBaseCost: 100,
   shelfCostMultiplier: 3,
-  timeScale: 10,
+  timeScale: 1,
   scale: 2
 }
 
