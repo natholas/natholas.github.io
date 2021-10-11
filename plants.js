@@ -37,7 +37,7 @@ export const plants = [
   },
   {
     key: 'succulent-2',
-    growthTime: 1000 * 60 * 7.5,
+    growthTime: 1000 * 60 * 8,
     numberOfStages: 5,
     value: 25,
     cost: 12,

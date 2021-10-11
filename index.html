@@ -70,10 +70,7 @@
       <div id="select-plant-meta" v-if="plantMenuOpen" v-html="selectPlantMenuMeta"></div>
       <div id="shelf-limit-meta" v-if="shelfLimitMenuOpen" v-html="shelfLimitMenuMeta"></div>
       <div id="plant-info-meta" v-if="plantInfoMenuOpen" v-html="plantInfoMeta"></div>
-    
-      <div id="loading">Loading...</div>
-      <div id="canvas-container">
-      </div>
+      <div id="canvas-container"></div>
       
       <div class="attribution">
         Plants - By David & Nathan Felix
@@ -81,6 +78,7 @@
       
       <button id="reset-button" onclick="reset()">RESET</button>
     </div>
+    <div id="loading" v-if="loading">Loading...</div>
   </div>
   
   <script type="module" src="script.js?v=3"></script>

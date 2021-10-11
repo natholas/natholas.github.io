@@ -77,13 +77,14 @@ window['reset'] = () => {
 }
 
 loader.load(async () => {
-  const loading = document.getElementById('loading')
-  loading.parentElement.removeChild(loading)
-  let data
-  try {
-    data = JSON.parse(localStorage.getItem('data'))
-    if (data.version !== configs.version) data = undefined
-  } catch(e) {}
-  load(data)
-  await initAuth()
+  let resp = await initAuth()
+  if (!resp) {
+    let data
+    try {
+      data = JSON.parse(localStorage.getItem('data'))
+      if (data.version !== configs.version) data = undefined
+    } catch(e) {}
+    load(data)
+  }
+  values.vueApp.loading = false
 })

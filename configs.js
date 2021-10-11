@@ -26,8 +26,6 @@ export const values = {
   waterLevel: undefined,
   waterLevelSprite: undefined,
   killed: false,
-  lastUpdateTime: Date.now(),
-  lastWateredTime: Date.now(),
   lastWaterCheckTime: Date.now(),
   addPlantMenuSprites: [],
   addPlantSelectedPlantIndex: 0,
@@ -44,4 +42,6 @@ export const values = {
   shelfLimitMenuSprites: [],
   plantInfoMenuSprites: [],
   loadingUserData: false,
+  waters: [{start: Date.now() - 1000 * 60 * 60 * 5, end: Date.now() + configs.waterDrainTime}],
+  lastSeenWaterLevel: 1
 }
