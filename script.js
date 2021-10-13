@@ -85,6 +85,7 @@ loader.load(async () => {
       data = JSON.parse(localStorage.getItem('data'))
       if (data.version !== configs.version) data = undefined
     } catch(e) {}
+    console.warn("TODO: load missions");
     load(data)
   }
   values.vueApp.loading = false

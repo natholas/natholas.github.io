@@ -71,7 +71,37 @@
       <div id="shelf-limit-meta" v-if="shelfLimitMenuOpen" v-html="shelfLimitMenuMeta"></div>
       <div id="plant-info-meta" v-if="plantInfoMenuOpen" v-html="plantInfoMeta"></div>
       <div id="missions-meta" v-if="missionsMenuOpen">
-        Coming soon!
+        <div v-if="activeMission">
+          <div class="mission">
+            <div class="title">{{activeMission.title}}</div>
+            <div class="description">{{activeMission.text}}</div>
+            <div class="reward">
+              Reward: ${{activeMission.reward.pointsText}} & {{activeMission.reward.xpText}} XP
+            </div>
+          </div>
+          <div class="button cancel-button" v-on:click="cancelMission()">
+            Cancel
+          </div>
+        </div>
+        <div v-if="!activeMission">
+          <h3>Available missions</h3>
+          <div class="missions">
+            <div class="mission" v-for="mission in availableMissions">
+              <div class="title">
+                {{mission.title}}
+              </div>
+              <div class="description">
+                {{mission.text}}
+              </div>
+              <div class="reward">
+                Reward: ${{mission.reward.pointsText}} & {{mission.reward.xpText}} XP
+              </div>
+              <div class="button accept-button" v-on:click="acceptMission(mission)">
+                Accept
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div id="canvas-container"></div>
       

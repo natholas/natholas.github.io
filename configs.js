@@ -23,6 +23,7 @@ export const values = {
   vueApp: undefined,
   shelves: [],
   points: 0,
+  xp: 0,
   bottomSprite: undefined,
   waterLevel: undefined,
   waterLevelSprite: undefined,
@@ -45,5 +46,6 @@ export const values = {
   missionsMenuSprites: [],
   loadingUserData: false,
   waters: [{start: Date.now() - 1000 * 60 * 60 * 5, end: Date.now() + configs.waterDrainTime}],
-  lastSeenWaterLevel: 1
+  lastSeenWaterLevel: 1,
+  completedMissions: []
 }

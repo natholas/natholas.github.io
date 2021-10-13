@@ -72,10 +72,93 @@ canvas {
 #missions-meta {
   position: fixed;
   top: 220px;
-  width: 100%;
+  width: calc(100% - 40px);
   text-align: center;
   font-size: 26px;
-  pointer-events: none;
+  max-width: 472px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#missions-meta h3 {
+  margin-top: 0;
+}
+
+#missions-meta .description {
+  font-size: 0.75em;
+}
+
+#missions-meta .title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#missions-meta .reward {
+  font-weight: bold;
+  font-size: 0.75em;
+  margin-top: 10px;
+}
+
+.missions .mission {
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 4px dashed black;
+}
+.missions .mission:last-child {
+  padding-bottom: 20px;
+  border-bottom: 4px dashed black;
+}
+
+.button {
+  width: fit-content;
+  background-image: url('/assets/buttons/custom/center.png');
+  background-position: center;
+  background-size: 30px;
+  position: relative;
+  padding-bottom: 5px;
+  padding-left: 20px;
+  padding-right: 20px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  image-rendering: pixelated;
+  filter: hue-rotate(98deg);
+  color: #ffb4b4;
+  margin: 0 auto;
+}
+
+.cancel-button {
+  filter: hue-rotate(19deg);
+  margin-top: 20px;
+}
+
+.mission .button {
+  margin-top: 20px;
+}
+
+.button:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -7px;
+  width: 7px;
+  height: 100%;
+  background-image: url('/assets/buttons/custom/left.png');
+  background-size: 30px;
+  image-rendering: pixelated;
+}
+.button:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -7px;
+  width: 7px;
+  height: 100%;
+  background-image: url('/assets/buttons/custom/right.png');
+  background-size: 30px;
+  image-rendering: pixelated;
+  background-position: right;
 }
 
 #reset-button {
