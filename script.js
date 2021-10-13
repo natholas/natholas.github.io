@@ -63,7 +63,7 @@ loader.add('button_water', 'assets/buttons/water.png')
 loader.add('button_confirm', 'assets/buttons/confirm.png')
 loader.add('button_sell', 'assets/buttons/sell.png')
 loader.add('button_close', 'assets/buttons/close.png')
-loader.add('button_missions', 'assets/buttons/missions.png')
+// loader.add('button_missions', 'assets/buttons/missions.png')
 for (let i = 1; i <= configs.numberOfPots; i++) loader.add('pot-' + i, 'assets/pot-' + i + '.png')
 
 plants.forEach(plant => {

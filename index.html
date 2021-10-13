@@ -7,13 +7,13 @@
   <title>Plants</title>
   <script src="/pixi.min.js"></script>
   <script src="/pixi-sound.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="/vue.min.js"></script>
   <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div id="app">
     <div class="header">
-      <div v-if="loggedIn" class="login"><span>Logged in as: {{email}}</span> (<span v-on:click="logout()">Logout</span>)</div>
+      <div v-if="loggedIn" class="login"><span class="logged-in-as">Logged in as: {{email}}</span> (<span v-on:click="logout()">Logout</span>)</div>
       <div v-if="!loggedIn" class="login" v-on:click="login()">Login</div>
       <div class="spacer"></div>
       <div class="stats-button" v-if="!statsVisible" v-on:click="openStats()">[Stats]</div>
@@ -65,13 +65,27 @@
     <div class="wrapper">
       <div class="texts">
         <div id="money">{{money}}</div>
-        <div id="xp">{{xp}} XP</div>
       </div>
+
+      <div class="button missions-button">{{getLevel()}}</div>
+      <div class="missions-button-click-area" v-on:click="openMissionsMenu()"></div>
     
       <div id="select-plant-meta" v-if="plantMenuOpen" v-html="selectPlantMenuMeta"></div>
       <div id="shelf-limit-meta" v-if="shelfLimitMenuOpen" v-html="shelfLimitMenuMeta"></div>
       <div id="plant-info-meta" v-if="plantInfoMenuOpen" v-html="plantInfoMeta"></div>
       <div id="missions-meta" v-if="missionsMenuOpen">
+
+        <h3 class="current-level">{{getLevel()}}</h3>
+        <!-- <div class="level-section">
+          <div class="previous-level">{{getLevel(-1)}}</div>
+          <div class="next-level">{{getLevel(+1)}}</div>
+        </div> -->
+        <div class="progress">
+          <div class="progress-inner" v-bind:style="{width: nextLevelPercent() + '%'}">
+            <div class="xp-to-go">{{xpToGoForNextLevel()}} / {{totalXpNextLevel()}} XP</div>
+          </div>
+        </div>
+
         <div v-if="activeMission">
           <div class="mission">
             <div class="title">{{activeMission.title}}</div>
@@ -79,6 +93,7 @@
             <div class="reward">
               Reward: ${{activeMission.reward.pointsText}} & {{activeMission.reward.xpText}} XP
             </div>
+            <div class="mission-progress" v-html="activeMission.getProgress(activeMission.startTime)"></div>
           </div>
           <div class="button cancel-button" v-on:click="cancelMission()">
             Cancel

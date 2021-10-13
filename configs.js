@@ -14,6 +14,8 @@ export const configs = {
   timeScale: 1,
   scale: 2,
   spacingTop: 10,
+  xpLevelRequirement: 10,
+  xpLevelMultiplier: 2
 }
 
 export const values = {
