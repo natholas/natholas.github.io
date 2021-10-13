@@ -69,6 +69,15 @@ canvas {
   pointer-events: none;
 }
 
+#missions-meta {
+  position: fixed;
+  top: 220px;
+  width: 100%;
+  text-align: center;
+  font-size: 26px;
+  pointer-events: none;
+}
+
 #reset-button {
   opacity: 0.1;
   margin: 20px auto 0;
@@ -93,6 +102,10 @@ canvas {
     font-size: 5vw;
   }
   #plant-info-meta {
+    top: 44vw;
+    font-size: 5vw;
+  }
+  #missions-meta {
     top: 44vw;
     font-size: 5vw;
   }

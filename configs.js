@@ -12,7 +12,8 @@ export const configs = {
   shelfBaseCost: 100,
   shelfCostMultiplier: 3,
   timeScale: 1,
-  scale: 2
+  scale: 2,
+  spacingTop: 10,
 }
 
 export const values = {
@@ -41,6 +42,7 @@ export const values = {
   sounds: {},
   shelfLimitMenuSprites: [],
   plantInfoMenuSprites: [],
+  missionsMenuSprites: [],
   loadingUserData: false,
   waters: [{start: Date.now() - 1000 * 60 * 60 * 5, end: Date.now() + configs.waterDrainTime}],
   lastSeenWaterLevel: 1
