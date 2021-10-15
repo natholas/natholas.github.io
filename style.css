@@ -89,7 +89,7 @@ canvas {
 }
 
 #plant-info-meta {
-  position: absolute;
+  position: fixed;
   top: 190px;
   width: 100%;
   text-align: center;

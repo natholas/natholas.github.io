@@ -21,6 +21,10 @@
     </div>
     <div class="stats" v-if="statsVisible">
       <h1>Stats</h1>
+      <div v-if="focusedHighscore">
+        <div v-on:click="setFocusedHighscore(undefined)">[close]</div>
+        <h3>{{focusedHighscore.name}}</h3>
+      </div>
       <div class="stat-row">
         <div class="stat-key">
           Planted: 
@@ -47,18 +51,19 @@
       </div>
 
       <div class="highscores">
-        <h1>Highscores</h1>
-        <div v-for="(data, index) in highscores" class="stat-row" v-bind:class="{active: uid === data.user}">
-          <div class="stat-key">
-            {{index + 1}} - {{data.name}}
+        <div v-if="!focusedHighscore">
+          <h1>Highscores</h1>
+          <div v-for="(data, index) in highscores" class="stat-row" v-bind:class="{active: uid === data.user}" v-on:click="setFocusedHighscore(data)">
+            <div class="stat-key">
+              {{index + 1}} - {{data.name}}
+            </div>
+            <div class="stat-value">
+              ${{data.totalPoints}} - {{data.xp}} XP
+            </div>
           </div>
-          <div class="stat-value">
-            ${{data.totalPoints}}
+          <div class="add-name" v-if="!loggedIn">
+            Login to be added to the highscores!
           </div>
-        </div>
-        
-        <div class="add-name" v-if="!loggedIn">
-          Login to be added to the highscores!
         </div>
       </div>
     </div>
